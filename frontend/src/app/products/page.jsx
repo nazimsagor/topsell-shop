@@ -1,11 +1,11 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { SlidersHorizontal, X } from 'lucide-react';
 import ProductCard from '@/components/products/ProductCard';
 import { productsApi, categoriesApi } from '@/lib/api';
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -98,7 +98,6 @@ export default function ProductsPage() {
       </div>
 
       <div className="flex gap-6">
-        {/* Sidebar */}
         <aside className={`${filtersOpen ? 'block' : 'hidden'} lg:block w-64 flex-shrink-0`}>
           <div className="card p-5 space-y-6">
             <div className="flex items-center justify-between">
@@ -109,8 +108,6 @@ export default function ProductsPage() {
                 </button>
               )}
             </div>
-
-            {/* Categories */}
             <div>
               <h4 className="text-sm font-semibold text-gray-700 mb-3">Category</h4>
               <div className="space-y-2">
@@ -127,44 +124,22 @@ export default function ProductsPage() {
                 ))}
               </div>
             </div>
-
-            {/* Price */}
             <div>
               <h4 className="text-sm font-semibold text-gray-700 mb-3">Price Range</h4>
               <div className="flex gap-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={filters.min_price}
-                  onChange={(e) => updateFilter('min_price', e.target.value)}
-                  className="input py-2 text-sm"
-                />
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={filters.max_price}
-                  onChange={(e) => updateFilter('max_price', e.target.value)}
-                  className="input py-2 text-sm"
-                />
+                <input type="number" placeholder="Min" value={filters.min_price} onChange={(e) => updateFilter('min_price', e.target.value)} className="input py-2 text-sm" />
+                <input type="number" placeholder="Max" value={filters.max_price} onChange={(e) => updateFilter('max_price', e.target.value)} className="input py-2 text-sm" />
               </div>
             </div>
-
-            {/* Featured */}
             <div>
               <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={filters.featured === 'true'}
-                  onChange={(e) => updateFilter('featured', e.target.checked ? 'true' : '')}
-                  className="text-primary-600"
-                />
+                <input type="checkbox" checked={filters.featured === 'true'} onChange={(e) => updateFilter('featured', e.target.checked ? 'true' : '')} className="text-primary-600" />
                 <span className="text-sm text-gray-700">Featured Only</span>
               </label>
             </div>
           </div>
         </aside>
 
-        {/* Products grid */}
         <div className="flex-1 min-w-0">
           {loading ? (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -181,7 +156,7 @@ export default function ProductsPage() {
             </div>
           ) : products.length === 0 ? (
             <div className="text-center py-20">
-              <p className="text-5xl mb-4">🔍</p>
+              <p className="text-5xl mb-4">🛍️</p>
               <h3 className="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
               <p className="text-gray-500 mb-6">Try adjusting your filters or search terms</p>
               <button onClick={clearFilters} className="btn-primary">Clear Filters</button>
@@ -191,8 +166,6 @@ export default function ProductsPage() {
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {products.map((product) => <ProductCard key={product.id} product={product} />)}
               </div>
-
-              {/* Pagination */}
               {pagination.pages > 1 && (
                 <div className="flex justify-center gap-2 mt-8">
                   {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((p) => (
@@ -200,9 +173,7 @@ export default function ProductsPage() {
                       key={p}
                       onClick={() => setFilters((prev) => ({ ...prev, page: p }))}
                       className={`w-10 h-10 rounded-lg font-medium text-sm transition-colors ${
-                        pagination.page === p
-                          ? 'bg-primary-600 text-white'
-                          : 'border border-gray-300 text-gray-700 hover:border-primary-400'
+                        pagination.page === p ? 'bg-primary-600 text-white' : 'border border-gray-300 text-gray-700 hover:border-primary-400'
                       }`}
                     >
                       {p}
@@ -215,5 +186,13 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <ProductsContent />
+    </Suspense>
   );
 }
