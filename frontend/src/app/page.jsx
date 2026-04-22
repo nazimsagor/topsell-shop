@@ -22,17 +22,17 @@ const CATEGORY_ICONS = {
 
 const HERO_SLIDES = [
   {
-    image: '/banners/banner1.jpg',
+    image: '/banners/banner1.png',
     link: '/products?category=home-garden',
     btnText: 'Shop Now',
   },
   {
-    image: '/banners/banner2.jpg',
+    image: '/banners/banner2.png',
     link: '/products?category=sports',
     btnText: 'View Deals',
   },
   {
-    image: '/banners/banner3.jpg',
+    image: '/banners/banner3.png',
     link: '/products?category=toys-games',
     btnText: 'Explore',
   },
