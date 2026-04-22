@@ -16,8 +16,20 @@ const MAX_SIZE = 5 * 1024 * 1024; // 5MB
 
 export async function POST(req) {
   try {
-    if (!process.env.CLOUDINARY_CLOUD_NAME) {
-      return NextResponse.json({ error: 'Cloudinary not configured' }, { status: 500 });
+    const { CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET } = process.env;
+    const missing = !CLOUDINARY_CLOUD_NAME || !CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET;
+    const placeholder =
+      CLOUDINARY_CLOUD_NAME === 'your-cloud-name' ||
+      CLOUDINARY_API_KEY === 'your-api-key' ||
+      CLOUDINARY_API_SECRET === 'your-api-secret';
+    if (missing || placeholder) {
+      return NextResponse.json(
+        {
+          error:
+            'Cloudinary credentials missing or still set to placeholders. Paste real values from https://console.cloudinary.com/ into frontend/.env.local, then restart next dev.',
+        },
+        { status: 500 }
+      );
     }
 
     const form = await req.formData();
