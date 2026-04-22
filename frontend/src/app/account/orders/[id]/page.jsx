@@ -37,7 +37,11 @@ export default function OrderDetailPage() {
 
   const items = order.order_items || order.items || [];
   const currentStep = STATUS_STEPS.indexOf(order.status);
-  const addr = order.shipping_address || {};
+  let addr = order.shipping_address || {};
+  if (typeof addr === 'string') {
+    try { addr = JSON.parse(addr); } catch { addr = {}; }
+  }
+  const hasAddr = addr && (addr.full_name || addr.street || addr.address || addr.city || addr.phone);
 
   const num = (v) => parseFloat(v || 0) || 0;
   const subtotal = order.subtotal != null
@@ -141,15 +145,26 @@ export default function OrderDetailPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-5">
             <h2 className="font-semibold text-gray-900 mb-3">Shipping Address</h2>
             <div className="text-sm text-gray-600 space-y-0.5">
-              {addr?.full_name && <p className="font-medium text-gray-900">{addr.full_name}</p>}
-              {addr?.phone && <p>{addr.phone}</p>}
-              {addr?.street && <p>{addr.street}</p>}
-              {addr?.street2 && <p>{addr.street2}</p>}
-              <p>
-                {[addr?.city, addr?.district || addr?.state, addr?.postal_code || addr?.zip].filter(Boolean).join(', ')}
-              </p>
-              {addr?.country && <p>{addr.country}</p>}
-              {!addr?.full_name && !addr?.street && <p className="text-gray-400">No shipping address on file.</p>}
+              {hasAddr ? (
+                <>
+                  {addr?.full_name && <p className="font-medium text-gray-900">{addr.full_name}</p>}
+                  {addr?.phone && <p>{addr.phone}</p>}
+                  {(addr?.street || addr?.address) && <p>{addr.street || addr.address}</p>}
+                  {addr?.street2 && <p>{addr.street2}</p>}
+                  {(addr?.city || addr?.district || addr?.state || addr?.postal_code || addr?.zip) && (
+                    <p>
+                      {[
+                        addr?.city,
+                        addr?.district || addr?.state,
+                        addr?.postal_code || addr?.zip,
+                      ].filter(Boolean).join(', ')}
+                    </p>
+                  )}
+                  {addr?.country && <p>{addr.country}</p>}
+                </>
+              ) : (
+                <p className="text-gray-400">No shipping address on file.</p>
+              )}
             </div>
           </div>
 

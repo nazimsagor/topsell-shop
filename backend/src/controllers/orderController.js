@@ -8,6 +8,7 @@ function sb({ data, error }) {
 
 exports.createOrder = asyncHandler(async (req, res) => {
   const userId = req.user.id;
+  const { shipping_address, payment_method, coupon_code } = req.body || {};
 
   const { data: cartItems, error: cartErr } = await supabase
     .from('cart')
@@ -27,7 +28,13 @@ exports.createOrder = asyncHandler(async (req, res) => {
 
   const order = sb(await supabase
     .from('orders')
-    .insert({ user_id: userId, total })
+    .insert({
+      user_id: userId,
+      total,
+      shipping_address: shipping_address || null,
+      payment_method: payment_method || null,
+      coupon_code: coupon_code || null,
+    })
     .select()
     .single());
 
