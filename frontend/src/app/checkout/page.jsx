@@ -20,7 +20,7 @@ import useAuthStore from '../../store/useAuthStore';
 import { ordersApi, paymentApi } from '../../lib/api';
 
 const PAYMENT_METHODS = [
-  { id: 'sslcommerz',       label: 'Pay Online (Card / bKash / Nagad / Rocket)', icon: CreditCard, hint: 'Secure checkout via SSLCommerz' },
+  { id: 'sslcommerz',       label: 'SSLCommerz (Card / bKash / Nagad)', icon: CreditCard, hint: 'All-in-one secure online payment' },
   { id: 'cash_on_delivery', label: 'Cash on Delivery', icon: Wallet },
 ];
 
@@ -420,8 +420,10 @@ export default function CheckoutPage() {
               {submitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Placing Order...
+                  {paymentMethod === 'sslcommerz' ? 'Redirecting to payment...' : 'Placing Order...'}
                 </>
+              ) : paymentMethod === 'sslcommerz' ? (
+                <>Place Order &amp; Pay • ${total.toFixed(2)}</>
               ) : (
                 <>Place Order • ${total.toFixed(2)}</>
               )}
