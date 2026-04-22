@@ -23,9 +23,7 @@ exports.createOrder = asyncHandler(async (req, res) => {
       return res.status(400).json({ error: `Insufficient stock for "${item.products.name}"` });
   }
 
-  let total = parseFloat(
-    cartItems.reduce((s, i) => s + i.products.price * i.qty, 0).toFixed(2)
-  );
+  const subtotal = +(cartItems.reduce((s, i) => s + i.products.price * i.qty, 0)).toFixed(2);
 
   // Validate coupon only if provided. Empty/whitespace is ignored silently.
   let validCoupon = null;
@@ -41,19 +39,30 @@ exports.createOrder = asyncHandler(async (req, res) => {
       validCoupon = coupon.code;
       discount =
         coupon.discount_type === 'percent'
-          ? +(total * (coupon.discount_value / 100)).toFixed(2)
+          ? +(subtotal * (coupon.discount_value / 100)).toFixed(2)
           : +coupon.discount_value;
-      total = Math.max(0, +(total - discount).toFixed(2));
     }
     // Invalid or missing coupon: ignore silently instead of erroring.
   }
+
+  const shippingMethod = shipping_address?.shipping_method;
+  const discountedSubtotal = Math.max(0, +(subtotal - discount).toFixed(2));
+  const shippingCost = shippingMethod === 'express' ? 8 : discountedSubtotal >= 50 ? 0 : 3;
+  const tax = +(discountedSubtotal * 0.08).toFixed(2);
+  const total = +(discountedSubtotal + shippingCost + tax).toFixed(2);
 
   const order = sb(await supabase
     .from('orders')
     .insert({
       user_id: userId,
       total,
+      subtotal,
+      tax,
+      shipping_cost: shippingCost,
       status: 'pending',
+      shipping_address: shipping_address || null,
+      payment_method: payment_method || 'cash_on_delivery',
+      discount: discount || 0,
     })
     .select()
     .single());
