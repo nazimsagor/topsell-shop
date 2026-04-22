@@ -76,6 +76,20 @@ export const ordersApi = {
   updateStatus: (id, data) => api.patch(`/orders/${id}/status`, data),
 };
 
+// Uploads
+export const uploadsApi = {
+  uploadImage: (file, onProgress) => {
+    const form = new FormData();
+    form.append('image', file);
+    return api.post('/uploads/single', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress: (e) => {
+        if (onProgress && e.total) onProgress(Math.round((e.loaded * 100) / e.total));
+      },
+    });
+  },
+};
+
 // Users
 export const usersApi = {
   getAll: (params) => api.get('/users', { params }),

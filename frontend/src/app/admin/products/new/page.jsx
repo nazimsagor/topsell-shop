@@ -7,12 +7,14 @@ import { toast } from 'react-hot-toast';
 import { ChevronLeft } from 'lucide-react';
 import useAuthStore from '@/store/useAuthStore';
 import { productsApi, categoriesApi } from '@/lib/api';
+import ImageUploader from '@/components/admin/ImageUploader';
 import { useState } from 'react';
 
 export default function NewProductPage() {
   const { user, loading } = useAuthStore();
   const router = useRouter();
   const [categories, setCategories] = useState([]);
+  const [image, setImage] = useState(null);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm();
 
   useEffect(() => {
@@ -28,7 +30,8 @@ export default function NewProductPage() {
         compare_price: data.compare_price ? parseFloat(data.compare_price) : null,
         stock: parseInt(data.stock),
         slug: data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now(),
-        images: data.images ? data.images.split(',').map((s) => s.trim()).filter(Boolean) : [],
+        image: image || null,
+        images: image ? [image] : [],
         is_featured: data.is_featured === 'true',
       };
       await productsApi.create(payload);
@@ -110,11 +113,8 @@ export default function NewProductPage() {
         </div>
 
         <div className="card p-6 space-y-4">
-          <h2 className="font-semibold text-gray-900">Images</h2>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Image URLs (comma-separated)</label>
-            <textarea {...register('images')} rows={3} className="input resize-none" placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg" />
-          </div>
+          <h2 className="font-semibold text-gray-900">Image</h2>
+          <ImageUploader value={image} onChange={setImage} label="" />
         </div>
 
         <div className="flex gap-4">

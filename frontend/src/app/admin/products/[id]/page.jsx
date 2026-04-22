@@ -7,6 +7,7 @@ import { toast } from 'react-hot-toast';
 import { ChevronLeft } from 'lucide-react';
 import useAuthStore from '../../../../store/useAuthStore';
 import { productsApi, categoriesApi } from '../../../../lib/api';
+import ImageUploader from '../../../../components/admin/ImageUploader';
 
 const BADGES = ['', 'hot', 'sale', 'new', 'featured'];
 
@@ -22,8 +23,12 @@ export default function EditProductPage() {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm();
+
+  const imageUrl = watch('image');
 
   useEffect(() => {
     if (!authLoading && (!user || user.role !== 'admin')) router.push('/');
@@ -166,10 +171,12 @@ export default function EditProductPage() {
 
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
           <h2 className="font-semibold text-gray-900">Image</h2>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Image URL</label>
-            <input {...register('image')} className={inputCls} placeholder="https://example.com/image.jpg" />
-          </div>
+          <input type="hidden" {...register('image')} />
+          <ImageUploader
+            value={imageUrl}
+            onChange={(url) => setValue('image', url, { shouldDirty: true })}
+            label=""
+          />
         </div>
 
         <div className="flex gap-4">
