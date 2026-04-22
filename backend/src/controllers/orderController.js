@@ -8,7 +8,8 @@ function sb({ data, error }) {
 
 exports.createOrder = asyncHandler(async (req, res) => {
   const userId = req.user.id;
-  const { shipping_address, payment_method, coupon_code } = req.body || {};
+  const { shipping_address, payment_method } = req.body || {};
+  const rawCoupon = (req.body?.coupon_code || '').trim();
 
   const { data: cartItems, error: cartErr } = await supabase
     .from('cart')
@@ -22,9 +23,30 @@ exports.createOrder = asyncHandler(async (req, res) => {
       return res.status(400).json({ error: `Insufficient stock for "${item.products.name}"` });
   }
 
-  const total = parseFloat(
+  let total = parseFloat(
     cartItems.reduce((s, i) => s + i.products.price * i.qty, 0).toFixed(2)
   );
+
+  // Validate coupon only if provided. Empty/whitespace is ignored silently.
+  let validCoupon = null;
+  let discount = 0;
+  if (rawCoupon) {
+    const { data: coupon } = await supabase
+      .from('coupons')
+      .select('code, discount_type, discount_value, active')
+      .eq('code', rawCoupon)
+      .maybeSingle();
+
+    if (coupon && coupon.active !== false) {
+      validCoupon = coupon.code;
+      discount =
+        coupon.discount_type === 'percent'
+          ? +(total * (coupon.discount_value / 100)).toFixed(2)
+          : +coupon.discount_value;
+      total = Math.max(0, +(total - discount).toFixed(2));
+    }
+    // Invalid or missing coupon: ignore silently instead of erroring.
+  }
 
   const order = sb(await supabase
     .from('orders')
@@ -33,7 +55,7 @@ exports.createOrder = asyncHandler(async (req, res) => {
       total,
       shipping_address: shipping_address || null,
       payment_method: payment_method || null,
-      coupon_code: coupon_code || null,
+      coupon_code: validCoupon,
     })
     .select()
     .single());

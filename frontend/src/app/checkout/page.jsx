@@ -58,7 +58,7 @@ export default function CheckoutPage() {
         cart_id: cartId,
         shipping_address: { ...shippingData, shipping_method: shippingMethod },
         payment_method: 'card',
-        coupon_code: couponCode || undefined,
+        coupon_code: couponCode.trim() || undefined,
       });
       await clearCart();
       toast.success('Order placed successfully!');
