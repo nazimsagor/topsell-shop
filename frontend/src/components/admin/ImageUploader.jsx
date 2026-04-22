@@ -2,7 +2,18 @@
 import { useRef, useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { Upload, Link as LinkIcon, X, ImageIcon, Loader2 } from 'lucide-react';
-import { uploadsApi } from '../../lib/api';
+import axios from 'axios';
+
+async function uploadToCloudinary(file, onProgress) {
+  const form = new FormData();
+  form.append('image', file);
+  return axios.post('/api/upload', form, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    onUploadProgress: (e) => {
+      if (onProgress && e.total) onProgress(Math.round((e.loaded * 100) / e.total));
+    },
+  });
+}
 
 const TABS = [
   { id: 'upload', label: 'Upload', Icon: Upload },
@@ -40,7 +51,7 @@ export default function ImageUploader({ value, onChange, label = 'Image' }) {
     setUploading(true);
     setProgress(0);
     try {
-      const { data } = await uploadsApi.uploadImage(file, (p) => setProgress(p));
+      const { data } = await uploadToCloudinary(file, (p) => setProgress(p));
       onChange(data.url);
       toast.success('Image uploaded');
     } catch (err) {
