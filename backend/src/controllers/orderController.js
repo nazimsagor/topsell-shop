@@ -55,7 +55,6 @@ exports.createOrder = asyncHandler(async (req, res) => {
       total,
       shipping_address: shipping_address || null,
       payment_method: payment_method || null,
-      coupon_code: validCoupon,
     })
     .select()
     .single());
