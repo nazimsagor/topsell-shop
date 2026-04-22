@@ -105,26 +105,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Red category scroll bar */}
-      {categories.length > 0 && (
-        <section className="bg-red-600 border-b border-red-700">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide py-2">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/products?category=${cat.slug}`}
-                  className="flex items-center gap-1.5 flex-shrink-0 text-white text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-red-700 transition-colors whitespace-nowrap"
-                >
-                  <span className="text-base">{CATEGORY_ICONS[cat.slug] || '🛍️'}</span>
-                  {cat.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
-
       {/* Popular Categories */}
       {categories.length > 0 && (
         <section className="bg-white py-14">
