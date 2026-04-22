@@ -90,11 +90,20 @@ exports.createProduct = asyncHandler(async (req, res) => {
   res.status(201).json(product);
 });
 
+const PRODUCT_COLUMNS = new Set([
+  'name', 'slug', 'description', 'price', 'old_price',
+  'stock', 'category_id', 'image', 'badge',
+]);
+
 exports.updateProduct = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { id: _, ...fields } = req.body;
+  const { id: _, ...rest } = req.body;
+  // Drop any fields that don't exist on the products table.
+  const fields = Object.fromEntries(
+    Object.entries(rest).filter(([k]) => PRODUCT_COLUMNS.has(k))
+  );
   if (!Object.keys(fields).length)
-    return res.status(400).json({ error: 'No fields to update' });
+    return res.status(400).json({ error: 'No valid fields to update' });
 
   const product = sb(await supabase
     .from('products')

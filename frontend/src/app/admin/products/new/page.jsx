@@ -24,15 +24,20 @@ export default function NewProductPage() {
 
   const onSubmit = async (data) => {
     try {
+      // Whitelist to columns that actually exist on the `products` table.
       const payload = {
-        ...data,
+        name: data.name,
+        slug:
+          data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') +
+          '-' +
+          Date.now(),
+        description: data.description || null,
         price: parseFloat(data.price),
-        compare_price: data.compare_price ? parseFloat(data.compare_price) : null,
-        stock: parseInt(data.stock),
-        slug: data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '') + '-' + Date.now(),
+        old_price: data.compare_price ? parseFloat(data.compare_price) : null,
+        stock: parseInt(data.stock) || 0,
+        category_id: data.category_id || null,
         image: image || null,
-        images: image ? [image] : [],
-        is_featured: data.is_featured === 'true',
+        badge: data.is_featured === 'true' ? 'featured' : null,
       };
       await productsApi.create(payload);
       toast.success('Product created!');

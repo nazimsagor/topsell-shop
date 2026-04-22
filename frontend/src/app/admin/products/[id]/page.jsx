@@ -51,9 +51,7 @@ export default function EditProductPage() {
           stock: p.stock ?? 0,
           category_id: p.category_id || '',
           badge: p.badge || '',
-          is_featured: !!p.is_featured,
           image: p.image || '',
-          is_active: p.is_active != null ? p.is_active : true,
         });
       })
       .catch(() => toast.error('Failed to load product'))
@@ -70,9 +68,7 @@ export default function EditProductPage() {
         stock: parseInt(data.stock) || 0,
         category_id: data.category_id || null,
         badge: data.badge || null,
-        is_featured: !!data.is_featured,
         image: data.image || null,
-        is_active: !!data.is_active,
       };
       await productsApi.update(id, payload);
       toast.success('Product updated');
@@ -157,16 +153,9 @@ export default function EditProductPage() {
               ))}
             </select>
           </div>
-          <div className="flex gap-6">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input {...register('is_featured')} type="checkbox" className="accent-red-600 w-4 h-4" />
-              <span className="text-sm font-medium text-gray-700">Featured Product</span>
-            </label>
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input {...register('is_active')} type="checkbox" className="accent-red-600 w-4 h-4" />
-              <span className="text-sm font-medium text-gray-700">Active</span>
-            </label>
-          </div>
+          <p className="text-xs text-gray-500">
+            Tip: set the badge to <span className="font-semibold">Featured</span> to mark this product as featured.
+          </p>
         </div>
 
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
