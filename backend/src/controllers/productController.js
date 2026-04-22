@@ -57,8 +57,9 @@ exports.getProducts = asyncHandler(async (req, res) => {
 
 exports.getProduct = asyncHandler(async (req, res) => {
   const { slug } = req.params;
+  const isNumericId = /^\d+$/.test(slug);
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
-  const col = isUuid ? 'id' : 'slug';
+  const col = isNumericId || isUuid ? 'id' : 'slug';
   const { data, error } = await supabase
     .from('products')
     .select('*, categories(name, slug)')
