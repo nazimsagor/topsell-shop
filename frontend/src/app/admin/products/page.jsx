@@ -1,12 +1,13 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { Plus, Edit, Trash2, Search } from 'lucide-react';
+import { Plus, Edit, Trash2, Search, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import useAuthStore from '@/store/useAuthStore';
 import { productsApi } from '@/lib/api';
+
+const PAGE_SIZE = 20;
 
 export default function AdminProductsPage() {
   const { user, loading } = useAuthStore();
@@ -14,6 +15,7 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState('');
   const [fetching, setFetching] = useState(true);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (!loading && (!user || user.role !== 'admin')) router.push('/');
@@ -21,10 +23,12 @@ export default function AdminProductsPage() {
 
   useEffect(() => {
     if (user?.role !== 'admin') return;
-    productsApi.getAll({ limit: 50 })
-      .then(({ data }) => setProducts(data.products))
+    productsApi.getAll({ limit: 500 })
+      .then(({ data }) => setProducts(data.products || []))
       .finally(() => setFetching(false));
   }, [user]);
+
+  useEffect(() => { setPage(1); }, [search]);
 
   const handleDelete = async (id, name) => {
     if (!confirm(`Delete "${name}"?`)) return;
@@ -37,7 +41,13 @@ export default function AdminProductsPage() {
     }
   };
 
-  const filtered = products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = useMemo(
+    () => products.filter((p) => p.name.toLowerCase().includes(search.toLowerCase())),
+    [products, search]
+  );
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const paged = filtered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -77,13 +87,21 @@ export default function AdminProductsPage() {
                     <td className="px-5 py-3" colSpan={6}><div className="h-8 bg-gray-100 rounded" /></td>
                   </tr>
                 ))
-              ) : filtered.map((product) => (
+              ) : paged.map((product) => {
+                const image = product.image || product.images?.[0] || null;
+                const categoryName = product.categories?.name || product.category?.name || product.category_name || '—';
+                const isActive = product.is_active != null
+                  ? product.is_active
+                  : product.status
+                    ? product.status === 'active'
+                    : true;
+                return (
                 <tr key={product.id} className="hover:bg-gray-50">
                   <td className="px-5 py-3">
                     <div className="flex items-center gap-3">
                       <div className="relative w-10 h-10 rounded-lg overflow-hidden bg-gray-50 flex-shrink-0">
-                        {product.images?.[0] ? (
-                          <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
+                        {image ? (
+                          <img src={image} alt={product.name} className="w-full h-full object-cover" />
                         ) : <div className="w-full h-full flex items-center justify-center text-lg">📦</div>}
                       </div>
                       <div>
@@ -98,10 +116,10 @@ export default function AdminProductsPage() {
                       {product.stock}
                     </span>
                   </td>
-                  <td className="px-5 py-3 text-gray-600">{product.category_name || '—'}</td>
+                  <td className="px-5 py-3 text-gray-600">{categoryName}</td>
                   <td className="px-5 py-3">
-                    <span className={`badge ${product.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
-                      {product.is_active ? 'Active' : 'Inactive'}
+                    <span className={`badge ${isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                      {isActive ? 'Active' : 'Inactive'}
                     </span>
                   </td>
                   <td className="px-5 py-3">
@@ -115,10 +133,36 @@ export default function AdminProductsPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
         </div>
+
+        {!fetching && filtered.length > 0 && (
+          <div className="flex items-center justify-between px-5 py-3 border-t border-gray-100 text-sm">
+            <p className="text-gray-500">
+              Showing {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, filtered.length)} of {filtered.length}
+            </p>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                className="p-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <span className="text-gray-700">Page {currentPage} of {totalPages}</span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                className="p-1.5 rounded-lg border border-gray-200 disabled:opacity-40 hover:bg-gray-50"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

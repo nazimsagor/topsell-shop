@@ -62,27 +62,32 @@ export default function AdminOrdersPage() {
                     <td colSpan={7} className="px-5 py-3"><div className="h-8 bg-gray-100 rounded" /></td>
                   </tr>
                 ))
-              ) : orders.map((order) => (
+              ) : orders.map((order) => {
+                const customerName = order.users?.name || order.user?.name || order.user_name || order.users?.email || 'Guest';
+                const orderRef = order.order_number || (order.id ? String(order.id).slice(0, 8) : '');
+                const paymentLabel = order.payment_method === 'cash_on_delivery'
+                  ? 'Cash on Delivery'
+                  : order.payment_method
+                    ? order.payment_method.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+                    : 'Online';
+                return (
                 <tr key={order.id} className="hover:bg-gray-50">
                   <td className="px-5 py-3 font-mono font-semibold text-primary-600">
-                    <Link href={`/account/orders/${order.id}`} className="hover:underline">{order.order_number}</Link>
+                    <Link href={`/account/orders/${order.id}`} className="hover:underline">#{orderRef}</Link>
                   </td>
-                  <td className="px-5 py-3 text-gray-600">{order.user_name || 'Guest'}</td>
+                  <td className="px-5 py-3 text-gray-600">{customerName}</td>
                   <td className="px-5 py-3 text-gray-500 whitespace-nowrap">{new Date(order.created_at).toLocaleDateString()}</td>
                   <td className="px-5 py-3 font-semibold">${parseFloat(order.total).toFixed(2)}</td>
                   <td className="px-5 py-3">
                     <span className={`badge ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-600'}`}>{order.status}</span>
                   </td>
-                  <td className="px-5 py-3">
-                    <span className={`badge ${order.payment_status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                      {order.payment_status}
-                    </span>
-                  </td>
+                  <td className="px-5 py-3 text-gray-600 text-xs">{paymentLabel}</td>
                   <td className="px-5 py-3">
                     <Link href={`/account/orders/${order.id}`} className="text-primary-600 hover:underline text-xs">View</Link>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
             </tbody>
           </table>
           {!fetching && orders.length === 0 && (
