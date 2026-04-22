@@ -107,38 +107,42 @@ export default function HomePage() {
 
       {/* Popular Categories */}
       {categories.length > 0 && (
-        <section className="bg-white py-14">
+        <section className="bg-white py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10">
-              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 uppercase tracking-wider">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900 uppercase tracking-wide border-l-4 border-red-600 pl-3">
                 Popular Categories
               </h2>
-              <div className="mt-2 mx-auto w-20 h-1 bg-red-600 rounded-full" />
-              <p className="mt-3 text-sm text-gray-500">Shop by your favorite category</p>
+              <Link href="/products" className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1">
+                View All <ArrowRight className="h-4 w-4" />
+              </Link>
             </div>
-            <div className="flex md:grid md:grid-cols-4 lg:grid-cols-8 gap-6 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:overflow-visible snap-x snap-mandatory md:snap-none scrollbar-hide">
-              {categories.map((cat) => (
-                <Link
-                  key={cat.id}
-                  href={`/products?category=${cat.slug}`}
-                  className="group flex flex-col items-center gap-3 flex-shrink-0 snap-start w-24 md:w-auto"
-                >
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-red-600 bg-white flex items-center justify-center shadow-sm overflow-hidden group-hover:bg-red-600 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
-                    {cat.image ? (
-                      <img
-                        src={cat.image}
-                        alt={cat.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span className="text-4xl md:text-5xl">{CATEGORY_ICONS[cat.slug] || '🛍️'}</span>
-                    )}
-                  </div>
-                  <span className="text-xs md:text-sm font-semibold text-gray-700 text-center group-hover:text-red-600 leading-tight transition-colors">
-                    {cat.name}
-                  </span>
-                </Link>
-              ))}
+            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-4">
+              {[...categories]
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .slice(0, 20)
+                .map((cat) => (
+                  <Link
+                    key={cat.id}
+                    href={`/products?category=${cat.slug}`}
+                    className="group flex flex-col items-center gap-2"
+                  >
+                    <div className="w-20 h-20 rounded-full border-2 border-red-500 bg-white flex items-center justify-center overflow-hidden group-hover:bg-red-500 group-hover:scale-105 transition-all duration-300">
+                      {cat.image ? (
+                        <img
+                          src={cat.image}
+                          alt={cat.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-3xl">{CATEGORY_ICONS[cat.slug] || '🛍️'}</span>
+                      )}
+                    </div>
+                    <span className="text-xs font-medium text-gray-700 text-center group-hover:text-red-600 leading-tight transition-colors line-clamp-2">
+                      {cat.name}
+                    </span>
+                  </Link>
+                ))}
             </div>
           </div>
         </section>
