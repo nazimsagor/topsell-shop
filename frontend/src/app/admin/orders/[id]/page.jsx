@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Printer } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import useAuthStore from '../../../../store/useAuthStore';
 import { ordersApi } from '../../../../lib/api';
@@ -94,9 +94,17 @@ export default function AdminOrderDetailPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Link href="/admin/orders" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 mb-6">
-        <ChevronLeft className="h-4 w-4" /> Back to Orders
-      </Link>
+      <div className="flex items-center justify-between mb-6 print:hidden">
+        <Link href="/admin/orders" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600">
+          <ChevronLeft className="h-4 w-4" /> Back to Orders
+        </Link>
+        <button
+          onClick={() => window.print()}
+          className="inline-flex items-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-700 font-semibold text-sm px-4 py-2 rounded-lg"
+        >
+          <Printer className="h-4 w-4" /> Print Invoice
+        </button>
+      </div>
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
@@ -113,8 +121,27 @@ export default function AdminOrderDetailPage() {
         </span>
       </div>
 
+      {/* Customer info */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6 grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Customer</p>
+          <p className="font-medium text-gray-900">{customerName}</p>
+          {customerEmail && <p className="text-gray-600">{customerEmail}</p>}
+        </div>
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Phone</p>
+          <p className="text-gray-700">{addr?.phone || '—'}</p>
+        </div>
+        <div>
+          <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">Shipping To</p>
+          <p className="text-gray-700">
+            {[addr?.city, addr?.district || addr?.state, addr?.country].filter(Boolean).join(', ') || '—'}
+          </p>
+        </div>
+      </div>
+
       {/* Status update */}
-      <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6">
+      <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6 print:hidden">
         <h2 className="font-semibold text-gray-900 mb-3">Update Status</h2>
         <div className="flex flex-col sm:flex-row gap-3">
           <select
@@ -209,16 +236,37 @@ export default function AdminOrderDetailPage() {
           </div>
 
           {/* Payment */}
-          {order.payment_method && (
-            <div className="bg-white rounded-xl border border-gray-200 p-5">
-              <h2 className="font-semibold text-gray-900 mb-2">Payment Method</h2>
-              <p className="text-sm text-gray-600 capitalize">
-                {order.payment_method === 'cash_on_delivery'
-                  ? 'Cash on Delivery'
-                  : order.payment_method.replace(/_/g, ' ')}
-              </p>
+          <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <h2 className="font-semibold text-gray-900 mb-3">Payment</h2>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Method</span>
+                <span className="text-gray-800 capitalize">
+                  {order.payment_method === 'cash_on_delivery'
+                    ? 'Cash on Delivery'
+                    : order.payment_method
+                      ? order.payment_method.replace(/_/g, ' ')
+                      : '—'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-500">Status</span>
+                <span className={`inline-block text-xs font-semibold px-2 py-0.5 rounded-full ${
+                  ['delivered'].includes(order.status) ? 'bg-green-100 text-green-700' :
+                  ['cancelled','refunded'].includes(order.status) ? 'bg-gray-100 text-gray-600' :
+                  'bg-yellow-100 text-yellow-700'
+                }`}>
+                  {order.status === 'delivered' ? 'Paid' : ['cancelled','refunded'].includes(order.status) ? 'Refunded' : 'Unpaid'}
+                </span>
+              </div>
+              {order.transaction_id && (
+                <div className="flex justify-between">
+                  <span className="text-gray-500">Transaction ID</span>
+                  <span className="text-gray-800 font-mono text-xs">{order.transaction_id}</span>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>

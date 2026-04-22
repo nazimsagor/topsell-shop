@@ -90,23 +90,42 @@ exports.createOrder = asyncHandler(async (req, res) => {
 });
 
 exports.getOrders = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10, status } = req.query;
+  const {
+    page = 1,
+    limit = 10,
+    status,
+    search,
+    sort_by = 'created_at',
+    sort_dir = 'desc',
+  } = req.query;
   const lim  = parseInt(limit) || 10;
   const from = (parseInt(page) - 1) * lim;
   const to   = from + lim - 1;
 
   const isAdmin = req.user.role === 'admin';
+
+  const sortCol = ['created_at', 'total'].includes(sort_by) ? sort_by : 'created_at';
+  const ascending = sort_dir === 'asc';
+
   let query = supabase
     .from('orders')
-    .select('*, users(name, email)', { count: 'exact' })
-    .order('created_at', { ascending: false })
+    .select('*, users(name, email), order_items(id)', { count: 'exact' })
+    .order(sortCol, { ascending })
     .range(from, to);
 
   if (!isAdmin) query = query.eq('user_id', req.user.id);
   if (status)   query = query.eq('status', status);
 
-  const { data, error } = await query;
+  // Search by numeric order id (exact) — name/email search is done client-side
+  // because PostgREST OR across a joined relation is fiddly.
+  if (search && /^\d+$/.test(search.trim())) {
+    query = query.eq('id', parseInt(search.trim()));
+  }
+
+  const { data, error, count } = await query;
   if (error) throw error;
+  res.set('X-Total-Count', String(count ?? data.length));
+  res.set('Access-Control-Expose-Headers', 'X-Total-Count');
   res.json(data);
 });
 
