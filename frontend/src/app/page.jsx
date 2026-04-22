@@ -26,11 +26,6 @@ const HERO_SLIDES = [
   { image: '/banners/banner3.png', link: '/products?category=toys-games' },
 ];
 
-const SIDE_PROMOS = [
-  { image: '/banners/banner2.png', link: '/products?category=electronics' },
-  { image: '/banners/banner3.png', link: '/products?category=beauty' },
-];
-
 export default function HomePage() {
   const [slide, setSlide] = useState(0);
   const [categories, setCategories] = useState([]);
@@ -56,50 +51,33 @@ export default function HomePage() {
   return (
     <div className="bg-gray-50 min-h-screen">
 
-      {/* Hero: main slider + side promos */}
+      {/* Hero slider */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-[7fr_3fr] gap-4">
-
-          {/* Main slider */}
-          <div className="relative overflow-hidden rounded-2xl bg-gray-100 shadow-md">
-            <div className="relative w-full h-[250px] md:h-[400px] lg:h-[500px]">
-              {HERO_SLIDES.map((s, i) => (
-                <Link
-                  key={i}
-                  href={s.link}
-                  className={`absolute inset-0 transition-opacity duration-700 cursor-pointer ${i === slide ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none'}`}
-                >
-                  <img src={s.image} alt={`Banner ${i+1}`} className="w-full h-full object-cover" />
-                </Link>
-              ))}
-            </div>
-
-            {/* Arrows */}
-            <button onClick={prevSlide} aria-label="Previous slide" className="absolute left-3 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-900 rounded-full p-2.5 shadow-xl transition-all hover:scale-110">
-              <ChevronLeft className="h-5 w-5" />
-            </button>
-            <button onClick={nextSlide} aria-label="Next slide" className="absolute right-3 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-900 rounded-full p-2.5 shadow-xl transition-all hover:scale-110">
-              <ChevronRight className="h-5 w-5" />
-            </button>
-
-            {/* Dots */}
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-              {HERO_SLIDES.map((_, i) => (
-                <button key={i} onClick={() => setSlide(i)} aria-label={`Go to slide ${i+1}`} className={`h-2.5 rounded-full transition-all ${i === slide ? 'bg-white w-6' : 'bg-white/60 w-2.5'}`} />
-              ))}
-            </div>
-          </div>
-
-          {/* Side promos */}
-          <div className="grid grid-cols-2 lg:grid-cols-1 grid-rows-1 lg:grid-rows-2 gap-4">
-            {SIDE_PROMOS.map((p, i) => (
+        <div className="relative overflow-hidden rounded-2xl bg-gray-100 shadow-md">
+          <div className="relative w-full h-[300px] md:h-[450px] lg:h-[550px]">
+            {HERO_SLIDES.map((s, i) => (
               <Link
                 key={i}
-                href={p.link}
-                className="relative overflow-hidden rounded-2xl shadow-md group cursor-pointer h-[120px] md:h-[180px] lg:h-auto"
+                href={s.link}
+                className={`absolute inset-0 transition-opacity duration-700 cursor-pointer ${i === slide ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none'}`}
               >
-                <img src={p.image} alt={`Promo ${i+1}`} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                <img src={s.image} alt={`Banner ${i+1}`} className="w-full h-full object-cover" />
               </Link>
+            ))}
+          </div>
+
+          {/* Arrows */}
+          <button onClick={prevSlide} aria-label="Previous slide" className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-900 rounded-full p-3 shadow-xl transition-all hover:scale-110">
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+          <button onClick={nextSlide} aria-label="Next slide" className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-900 rounded-full p-3 shadow-xl transition-all hover:scale-110">
+            <ChevronRight className="h-6 w-6" />
+          </button>
+
+          {/* Dots */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
+            {HERO_SLIDES.map((_, i) => (
+              <button key={i} onClick={() => setSlide(i)} aria-label={`Go to slide ${i+1}`} className={`h-2.5 rounded-full transition-all ${i === slide ? 'bg-white w-6' : 'bg-white/60 w-2.5'}`} />
             ))}
           </div>
         </div>
