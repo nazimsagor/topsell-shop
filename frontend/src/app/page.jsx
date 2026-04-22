@@ -282,8 +282,8 @@ export default function HomePage() {
         <section className="bg-white py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <PromoPair
-              left={{ image: '/banners/banner1.png', href: '/products?category=home-garden' }}
-              right={{ image: '/banners/banner2.png', href: '/products?category=electronics' }}
+              left={{ image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=700&h=300&fit=crop', href: '/products?category=electronics' }}
+              right={{ image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=700&h=300&fit=crop', href: '/products?category=clothing' }}
             />
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-wide">Bestsellers</h2>
@@ -301,8 +301,8 @@ export default function HomePage() {
         <section className="py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <PromoPair
-              left={{ image: '/banners/banner2.png', href: '/products?category=sports' }}
-              right={{ image: '/banners/banner3.png', href: '/products?category=toys-games' }}
+              left={{ image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&h=300&fit=crop', href: '/products?category=video-surveillance' }}
+              right={{ image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=700&h=300&fit=crop', href: '/products?category=home-garden' }}
             />
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-wide">New Products</h2>
@@ -320,8 +320,8 @@ export default function HomePage() {
         <section className="bg-white py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <PromoPair
-              left={{ image: '/banners/banner3.png', href: '/products?category=beauty' }}
-              right={{ image: '/banners/banner1.png', href: '/products?category=fitness' }}
+              left={{ image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=700&h=300&fit=crop', href: '/products?category=beauty-personal-care' }}
+              right={{ image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=700&h=300&fit=crop', href: '/products?category=camping' }}
             />
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-wide">Recommended Items</h2>
