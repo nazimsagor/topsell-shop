@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Truck, Shield, RefreshCw, Headphones, ChevronLeft, ChevronRight, Phone, Mail } from 'lucide-react';
+import { ArrowRight, Truck, Shield, RefreshCw, Headphones, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductCard from '../components/products/ProductCard';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -62,15 +62,6 @@ export default function HomePage() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
-
-      {/* Top bar */}
-      <div className="bg-red-600 text-white text-xs py-1.5 px-4 flex justify-between items-center">
-        <div className="flex items-center gap-4">
-          <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> 080 910 444</span>
-          <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> support@topsell.shop</span>
-        </div>
-        <span>Free shipping on orders over $50! 🚚</span>
-      </div>
 
       {/* Hero Slider */}
       <section className="relative overflow-hidden bg-gray-900">
