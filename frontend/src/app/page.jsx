@@ -84,26 +84,46 @@ export default function HomePage() {
       </section>
 
       {/* Trust badges */}
-      <section className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <section className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
             {[
               { icon: Truck, title: 'Free Shipping', desc: 'Orders over $50', color: 'text-orange-500' },
               { icon: Shield, title: 'Secure Payment', desc: '100% protected', color: 'text-green-500' },
               { icon: RefreshCw, title: 'Easy Returns', desc: '30-day policy', color: 'text-blue-500' },
               { icon: Headphones, title: '24/7 Support', desc: 'Always here for you', color: 'text-purple-500' },
             ].map(({ icon: Icon, title, desc, color }) => (
-              <div key={title} className="flex items-center gap-3 py-2">
-                <Icon className={`h-6 w-6 ${color} flex-shrink-0`} />
-                <div>
-                  <p className="text-sm font-bold text-gray-900">{title}</p>
-                  <p className="text-xs text-gray-500">{desc}</p>
+              <div key={title} className="flex items-center gap-2 py-1">
+                <Icon className={`h-4 w-4 ${color} flex-shrink-0`} />
+                <div className="leading-tight">
+                  <p className="text-xs font-bold text-gray-900">{title}</p>
+                  <p className="text-[10px] text-gray-500">{desc}</p>
                 </div>
               </div>
             ))}
           </div>
         </div>
       </section>
+
+      {/* Red category scroll bar */}
+      {categories.length > 0 && (
+        <section className="bg-red-600 border-b border-red-700">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide py-2">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/products?category=${cat.slug}`}
+                  className="flex items-center gap-1.5 flex-shrink-0 text-white text-sm font-semibold px-4 py-1.5 rounded-full hover:bg-red-700 transition-colors whitespace-nowrap"
+                >
+                  <span className="text-base">{CATEGORY_ICONS[cat.slug] || '🛍️'}</span>
+                  {cat.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Popular Categories */}
       {categories.length > 0 && (
