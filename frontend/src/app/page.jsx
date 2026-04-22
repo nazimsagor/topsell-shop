@@ -47,9 +47,18 @@ const BLOG_POSTS = [
 ];
 
 const HERO_SLIDES = [
-  { image: '/banners/banner1.png', link: '/products?category=home-garden' },
-  { image: '/banners/banner2.png', link: '/products?category=sports' },
-  { image: '/banners/banner3.png', link: '/products?category=toys-games' },
+  {
+    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1400&h=550&fit=crop',
+    link: '/products?category=kitchen',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1400&h=550&fit=crop',
+    link: '/products?category=fitness',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1472289065668-ce650ac443d2?w=1400&h=550&fit=crop',
+    link: '/products?category=toys-games',
+  },
 ];
 
 function PromoPair({ left, right }) {
