@@ -53,8 +53,8 @@ exports.createOrder = asyncHandler(async (req, res) => {
     .insert({
       user_id: userId,
       total,
+      status: 'pending',
       shipping_address: shipping_address || null,
-      payment_method: payment_method || null,
     })
     .select()
     .single());
