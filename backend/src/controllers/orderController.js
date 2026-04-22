@@ -54,7 +54,6 @@ exports.createOrder = asyncHandler(async (req, res) => {
       user_id: userId,
       total,
       status: 'pending',
-      shipping_address: shipping_address || null,
     })
     .select()
     .single());
