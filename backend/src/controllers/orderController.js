@@ -59,7 +59,7 @@ exports.createOrder = asyncHandler(async (req, res) => {
       subtotal,
       tax,
       shipping_cost: shippingCost,
-      status: 'pending',
+      status: 'confirmed',
       shipping_address: shipping_address || null,
       payment_method: payment_method || 'cash_on_delivery',
       discount: discount || 0,

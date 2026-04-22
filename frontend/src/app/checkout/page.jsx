@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
-import { ChevronLeft, CreditCard, Check, Truck, Zap } from 'lucide-react';
+import { ChevronLeft, CreditCard, Check, Truck, Zap, CheckCircle2, ArrowRight } from 'lucide-react';
 import useCartStore from '../../store/useCartStore';
 import useAuthStore from '../../store/useAuthStore';
 import { ordersApi } from '../../lib/api';
@@ -18,6 +18,7 @@ export default function CheckoutPage() {
   const [shippingMethod, setShippingMethod] = useState('standard');
   const [couponCode, setCouponCode] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [placedOrder, setPlacedOrder] = useState(null);
 
   const { register, handleSubmit, formState: { errors } } = useForm();
 
@@ -33,6 +34,38 @@ export default function CheckoutPage() {
         <h2 className="text-2xl font-bold mb-4">Sign in to Checkout</h2>
         <p className="text-gray-500 mb-6">You need to be signed in to complete your purchase</p>
         <Link href="/auth/login?redirect=/checkout" className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl">Sign In</Link>
+      </div>
+    );
+  }
+
+  if (placedOrder) {
+    const ref = placedOrder.order_number || (placedOrder.id ? String(placedOrder.id).slice(0, 8) : '');
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-16 text-center">
+        <div className="bg-white rounded-2xl border border-gray-200 p-10 shadow-sm">
+          <div className="w-20 h-20 mx-auto rounded-full bg-green-100 flex items-center justify-center mb-5">
+            <CheckCircle2 className="h-12 w-12 text-green-600" />
+          </div>
+          <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Order Confirmed! ✅</h1>
+          <p className="text-gray-600 mb-1">Thank you for your purchase.</p>
+          <p className="text-sm text-gray-500 mb-6">
+            Order Number: <span className="font-mono font-semibold text-gray-900">#{ref}</span>
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link
+              href="/products"
+              className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl"
+            >
+              Continue Shopping <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/account/orders"
+              className="inline-flex items-center justify-center gap-2 bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 font-bold px-6 py-3 rounded-xl"
+            >
+              View Orders
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
@@ -62,7 +95,7 @@ export default function CheckoutPage() {
       });
       await clearCart();
       toast.success('Order placed successfully!');
-      router.push(`/account/orders/${data.id}`);
+      setPlacedOrder(data);
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to place order');
     } finally {
