@@ -19,6 +19,33 @@ const CATEGORY_ICONS = {
   'sports-fitness': '🏃', 'toys-games': '🎮', 'video-surveillance': '📹',
 };
 
+const BLOG_POSTS = [
+  {
+    title: 'Top 10 Kitchen Gadgets You Need in 2026',
+    category: 'Kitchen',
+    description: 'Discover the must-have kitchen tools that will transform your cooking experience. From smart appliances to innovative utensils.',
+    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600',
+    date: 'April 15, 2026',
+    slug: 'top-10-kitchen-gadgets',
+  },
+  {
+    title: 'Best Fitness Equipment for Home Workouts',
+    category: 'Fitness',
+    description: 'Build your perfect home gym with these essential fitness tools. Stay fit without leaving your house with our top picks.',
+    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600',
+    date: 'April 10, 2026',
+    slug: 'best-fitness-equipment',
+  },
+  {
+    title: 'How to Choose the Right Security Camera',
+    category: 'Electronics',
+    description: 'Protect your home with the right security camera system. Learn what features matter most when choosing surveillance equipment.',
+    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600',
+    date: 'April 5, 2026',
+    slug: 'choose-security-camera',
+  },
+];
+
 const HERO_SLIDES = [
   { image: '/banners/banner1.png', link: '/products?category=home-garden' },
   { image: '/banners/banner2.png', link: '/products?category=sports' },
@@ -321,6 +348,45 @@ export default function HomePage() {
           </div>
         </section>
       )}
+
+      {/* Blog */}
+      <section className="bg-white py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-wide mb-6">
+            Read About Our Products
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {BLOG_POSTS.map((post) => (
+              <Link
+                key={post.slug}
+                href={`/blog/${post.slug}`}
+                className="group flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+              >
+                <div className="relative h-48 overflow-hidden">
+                  <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <span className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
+                    {post.category}
+                  </span>
+                </div>
+                <div className="p-5 flex flex-col flex-1">
+                  <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-red-600 transition-colors mb-2">
+                    {post.title}
+                  </h3>
+                  <p className="text-sm text-gray-500 line-clamp-3 mb-4 flex-1">
+                    {post.description}
+                  </p>
+                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                    <span className="text-xs text-gray-500">{post.date}</span>
+                    <span className="text-sm font-semibold text-red-600 flex items-center gap-1 group-hover:gap-2 transition-all">
+                      Read More <ArrowRight className="h-4 w-4" />
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* CTA Banner */}
       <section className="bg-gradient-to-r from-red-600 to-orange-500 text-white py-12">
