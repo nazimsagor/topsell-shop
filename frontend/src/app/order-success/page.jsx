@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircle2, ArrowRight, Loader2, Package } from 'lucide-react';
@@ -7,6 +7,20 @@ import useCartStore from '../../store/useCartStore';
 import { ordersApi } from '../../lib/api';
 
 export default function OrderSuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="max-w-2xl mx-auto px-4 py-24 text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-red-600 mx-auto" />
+        </div>
+      }
+    >
+      <OrderSuccessContent />
+    </Suspense>
+  );
+}
+
+function OrderSuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get('orderId');
   const { clearCart } = useCartStore();
