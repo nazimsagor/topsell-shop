@@ -65,7 +65,7 @@ export default function HomePage() {
 
       {/* Hero Slider */}
       <section className="relative overflow-hidden bg-gray-900">
-        <div className="relative w-full" style={{height: '600px'}}>
+        <div className="relative w-full h-[250px] md:h-[400px] lg:h-[600px]">
           {HERO_SLIDES.map((s, i) => (
             <div key={i} className={`absolute inset-0 transition-opacity duration-700 ${i === slide ? 'opacity-100' : 'opacity-0'}`}>
               <img src={s.image} alt={`Banner ${i+1}`} className="w-full h-full object-cover" />
@@ -79,10 +79,10 @@ export default function HomePage() {
         </div>
 
         {/* Slider controls */}
-        <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors">
+        <button onClick={prevSlide} aria-label="Previous slide" className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-900 rounded-full p-3 shadow-xl transition-all hover:scale-110">
           <ChevronLeft className="h-6 w-6" />
         </button>
-        <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors">
+        <button onClick={nextSlide} aria-label="Next slide" className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/90 hover:bg-white text-gray-900 rounded-full p-3 shadow-xl transition-all hover:scale-110">
           <ChevronRight className="h-6 w-6" />
         </button>
 

@@ -89,7 +89,7 @@ export default function Header() {
                 <Headphones className="h-7 w-7 text-red-500" />
                 <div className="leading-tight">
                   <p className="text-[11px] text-gray-400">Contact us</p>
-                  <p className="text-sm font-bold">080 910 444</p>
+                  <p className="text-sm font-bold">+8801797515010</p>
                 </div>
               </div>
 
@@ -182,7 +182,7 @@ export default function Header() {
               <Link href="/products?category=sports" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">⚽ Sports</Link>
 
               <span className="ml-auto text-white text-xs font-medium flex items-center gap-1">
-                <Phone className="h-3.5 w-3.5" /> 080 910 444
+                <Phone className="h-3.5 w-3.5" /> +8801797515010
               </span>
             </div>
           </div>
