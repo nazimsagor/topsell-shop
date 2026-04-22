@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Truck, Shield, RefreshCw, Headphones, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowRight, Truck, Shield, RefreshCw, Headphones, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Star } from 'lucide-react';
 import ProductCard from '../components/products/ProductCard';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -37,6 +37,43 @@ function PromoPair({ left, right }) {
   );
 }
 
+function ProductListItem({ product }) {
+  const rating = parseFloat(product.rating) || 4.5;
+  const discount = product.old_price
+    ? Math.round((1 - product.price / product.old_price) * 100)
+    : 0;
+  return (
+    <Link href={`/products/${product.slug}`} className="flex items-center gap-3 py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors group">
+      <div className="relative w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
+        {product.image ? (
+          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-2xl">📦</div>
+        )}
+        {discount > 0 && (
+          <span className="absolute top-0.5 left-0.5 bg-red-600 text-white text-[9px] font-bold px-1 py-0.5 rounded">
+            -{discount}%
+          </span>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-semibold text-gray-800 truncate group-hover:text-red-600">{product.name}</p>
+        <div className="flex items-center gap-1 mt-0.5">
+          {[1,2,3,4,5].map(i => (
+            <Star key={i} className={`h-3 w-3 ${i <= Math.round(rating) ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'}`} />
+          ))}
+        </div>
+        <div className="flex items-baseline gap-2 mt-1">
+          <span className="text-sm font-bold text-red-600">${parseFloat(product.price).toFixed(2)}</span>
+          {product.old_price && (
+            <span className="text-xs text-gray-400 line-through">${parseFloat(product.old_price).toFixed(2)}</span>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 function ProductRail({ products }) {
   const ref = useRef(null);
   const scroll = (dx) => ref.current?.scrollBy({ left: dx, behavior: 'smooth' });
@@ -66,12 +103,18 @@ export default function HomePage() {
   const [featured, setFeatured] = useState([]);
   const [newProducts, setNewProducts] = useState([]);
   const [bestsellers, setBestsellers] = useState([]);
+  const [topRated, setTopRated] = useState([]);
+  const [reduced, setReduced] = useState([]);
+  const [topOffer, setTopOffer] = useState([]);
 
   useEffect(() => {
     fetch(`${API}/categories`).then(r => r.json()).then(d => setCategories(Array.isArray(d) ? d : [])).catch(() => {});
     fetch(`${API}/products/featured`).then(r => r.json()).then(d => setFeatured(Array.isArray(d) ? d.slice(0, 8) : [])).catch(() => {});
     fetch(`${API}/products?limit=8&sort=created_at&order=desc`).then(r => r.json()).then(d => setNewProducts(Array.isArray(d.products) ? d.products : [])).catch(() => {});
     fetch(`${API}/products?limit=8&sort=sold_count&order=desc`).then(r => r.json()).then(d => setBestsellers(Array.isArray(d.products) ? d.products : [])).catch(() => {});
+    fetch(`${API}/products?sort=rating&order=desc&limit=5`).then(r => r.json()).then(d => setTopRated(Array.isArray(d.products) ? d.products : [])).catch(() => {});
+    fetch(`${API}/products?sort=price&order=asc&limit=5`).then(r => r.json()).then(d => setReduced(Array.isArray(d.products) ? d.products : [])).catch(() => {});
+    fetch(`${API}/products?featured=true&limit=5`).then(r => r.json()).then(d => setTopOffer(Array.isArray(d.products) ? d.products : [])).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -251,6 +294,30 @@ export default function HomePage() {
               </Link>
             </div>
             <ProductRail products={featured} />
+          </div>
+        </section>
+      )}
+
+      {/* Top Rated / Reduced / Top Offer */}
+      {(topRated.length > 0 || reduced.length > 0 || topOffer.length > 0) && (
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { title: 'Top Rated', items: topRated },
+                { title: 'Reduced',   items: reduced },
+                { title: 'Top Offer', items: topOffer },
+              ].map(({ title, items }) => (
+                <div key={title} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
+                  <h3 className="text-lg font-extrabold text-gray-900 uppercase tracking-wide mb-3">{title}</h3>
+                  <div>
+                    {items.length > 0
+                      ? items.map((p) => <ProductListItem key={p.id} product={p} />)
+                      : <p className="text-sm text-gray-400 py-4">No products yet.</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}
