@@ -1,44 +1,11 @@
+'use client';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Truck, Shield, RefreshCw, Headphones } from 'lucide-react';
+import { ArrowRight, Truck, Shield, RefreshCw, Headphones, ChevronLeft, ChevronRight, Phone, Mail } from 'lucide-react';
 import ProductCard from '../components/products/ProductCard';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-
-async function getFeatured() {
-  try {
-    const res = await fetch(`${API}/products/featured`, { next: { revalidate: 300 } });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
-}
-
-async function getCategories() {
-  try {
-    const res = await fetch(`${API}/categories`, { next: { revalidate: 3600 } });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
-}
-
-async function getProducts() {
-  try {
-    const res = await fetch(`${API}/products?limit=8&sort=id&order=desc`, {
-      next: { revalidate: 300 },
-    });
-    if (!res.ok) return [];
-    const data = await res.json();
-    return Array.isArray(data.products) ? data.products : [];
-  } catch {
-    return [];
-  }
-}
 
 const CATEGORY_ICONS = {
   electronics: '💻',
@@ -47,59 +14,125 @@ const CATEGORY_ICONS = {
   sports: '⚽',
   books: '📚',
   beauty: '💄',
+  automotive: '🚗',
+  'food-grocery': '🛒',
+  'health-wellness': '💊',
+  'toys-games': '🧸',
 };
 
-export default async function HomePage() {
-  const [featured, categories, allProducts] = await Promise.all([
-    getFeatured(), getCategories(), getProducts(),
-  ]);
-  const displayProducts = featured.length > 0 ? featured : allProducts;
+const HERO_SLIDES = [
+  {
+    title: 'Shop Smarter, Live Better',
+    subtitle: 'Discover thousands of products at unbeatable prices',
+    badge: 'New Arrivals',
+    bg: 'from-orange-600 to-red-700',
+    link: '/products?sort=created_at&order=desc',
+    btnText: 'Shop Now',
+  },
+  {
+    title: 'Best Deals This Week',
+    subtitle: 'Free shipping on orders over $50',
+    badge: 'Hot Deals',
+    bg: 'from-blue-600 to-indigo-700',
+    link: '/products?featured=true',
+    btnText: 'View Deals',
+  },
+  {
+    title: 'Top Rated Products',
+    subtitle: 'Handpicked by our customers',
+    badge: 'Bestsellers',
+    bg: 'from-green-600 to-teal-700',
+    link: '/products?sort=rating&order=desc',
+    btnText: 'Explore',
+  },
+];
+
+export default function HomePage() {
+  const [slide, setSlide] = useState(0);
+  const [categories, setCategories] = useState([]);
+  const [featured, setFeatured] = useState([]);
+  const [newProducts, setNewProducts] = useState([]);
+  const [bestsellers, setBestsellers] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API}/categories`).then(r => r.json()).then(d => setCategories(Array.isArray(d) ? d : [])).catch(() => {});
+    fetch(`${API}/products/featured`).then(r => r.json()).then(d => setFeatured(Array.isArray(d) ? d.slice(0, 8) : [])).catch(() => {});
+    fetch(`${API}/products?limit=8&sort=created_at&order=desc`).then(r => r.json()).then(d => setNewProducts(Array.isArray(d.products) ? d.products : [])).catch(() => {});
+    fetch(`${API}/products?limit=8&sort=sold_count&order=desc`).then(r => r.json()).then(d => setBestsellers(Array.isArray(d.products) ? d.products : [])).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    const t = setInterval(() => setSlide(s => (s + 1) % HERO_SLIDES.length), 4000);
+    return () => clearInterval(t);
+  }, []);
+
+  const prevSlide = () => setSlide(s => (s - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+  const nextSlide = () => setSlide(s => (s + 1) % HERO_SLIDES.length);
 
   return (
-    <div>
-      {/* Hero */}
-      <section className="relative bg-gradient-to-br from-primary-600 via-primary-700 to-primary-900 text-white overflow-hidden">
-        <div className="absolute inset-0 bg-black/20" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
-          <div className="max-w-3xl">
-            <p className="text-primary-200 text-sm font-semibold uppercase tracking-widest mb-3">Welcome to TopSell</p>
-            <h1 className="text-4xl md:text-6xl font-extrabold leading-tight mb-6">
-              Shop Smarter,<br />Live Better
-            </h1>
-            <p className="text-xl text-primary-100 mb-8 leading-relaxed">
-              Discover thousands of products at unbeatable prices. Free shipping on orders over $50.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/products" className="inline-flex items-center justify-center gap-2 bg-white text-primary-700 font-bold px-8 py-4 rounded-xl hover:bg-gray-50 transition-colors text-lg shadow-lg">
-                Shop Now <ArrowRight className="h-5 w-5" />
+    <div className="bg-gray-50 min-h-screen">
+
+      {/* Top bar */}
+      <div className="bg-red-600 text-white text-xs py-1.5 px-4 flex justify-between items-center">
+        <div className="flex items-center gap-4">
+          <span className="flex items-center gap-1"><Phone className="h-3 w-3" /> 080 910 444</span>
+          <span className="flex items-center gap-1"><Mail className="h-3 w-3" /> support@topsell.shop</span>
+        </div>
+        <span>Free shipping on orders over $50! 🚚</span>
+      </div>
+
+      {/* Hero Slider */}
+      <section className="relative overflow-hidden">
+        <div className={`bg-gradient-to-r ${HERO_SLIDES[slide].bg} text-white transition-all duration-700`}>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 flex items-center justify-between">
+            <div className="max-w-xl">
+              <span className="inline-block bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest">
+                {HERO_SLIDES[slide].badge}
+              </span>
+              <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-4">
+                {HERO_SLIDES[slide].title}
+              </h1>
+              <p className="text-white/80 text-lg mb-8">{HERO_SLIDES[slide].subtitle}</p>
+              <Link href={HERO_SLIDES[slide].link} className="inline-flex items-center gap-2 bg-white text-gray-900 font-bold px-8 py-3 rounded-xl hover:bg-gray-100 transition-colors shadow-lg">
+                {HERO_SLIDES[slide].btnText} <ArrowRight className="h-5 w-5" />
               </Link>
-              <Link href="/products?featured=true" className="inline-flex items-center justify-center border-2 border-white text-white font-bold px-8 py-4 rounded-xl hover:bg-white/10 transition-colors text-lg">
-                Featured Deals
-              </Link>
+            </div>
+            <div className="hidden md:flex flex-col items-center gap-2 text-6xl">
+              🛍️
             </div>
           </div>
         </div>
-        {/* Decorative circles */}
-        <div className="absolute -right-24 -top-24 w-96 h-96 rounded-full bg-white/5" />
-        <div className="absolute -right-12 top-32 w-48 h-48 rounded-full bg-white/5" />
+
+        {/* Slider controls */}
+        <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 text-white rounded-full p-2 transition-colors">
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 text-white rounded-full p-2 transition-colors">
+          <ChevronRight className="h-5 w-5" />
+        </button>
+
+        {/* Dots */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+          {HERO_SLIDES.map((_, i) => (
+            <button key={i} onClick={() => setSlide(i)} className={`w-2.5 h-2.5 rounded-full transition-all ${i === slide ? 'bg-white w-6' : 'bg-white/50'}`} />
+          ))}
+        </div>
       </section>
 
       {/* Trust badges */}
-      <section className="bg-gray-50 border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <section className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { icon: Truck, title: 'Free Shipping', desc: 'Orders over $50' },
-              { icon: Shield, title: 'Secure Payment', desc: '100% protected' },
-              { icon: RefreshCw, title: 'Easy Returns', desc: '30-day policy' },
-              { icon: Headphones, title: '24/7 Support', desc: 'Always here for you' },
-            ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="flex items-center gap-3">
-                <div className="p-2.5 bg-primary-100 rounded-lg flex-shrink-0">
-                  <Icon className="h-5 w-5 text-primary-600" />
-                </div>
+              { icon: Truck, title: 'Free Shipping', desc: 'Orders over $50', color: 'text-orange-500' },
+              { icon: Shield, title: 'Secure Payment', desc: '100% protected', color: 'text-green-500' },
+              { icon: RefreshCw, title: 'Easy Returns', desc: '30-day policy', color: 'text-blue-500' },
+              { icon: Headphones, title: '24/7 Support', desc: 'Always here for you', color: 'text-purple-500' },
+            ].map(({ icon: Icon, title, desc, color }) => (
+              <div key={title} className="flex items-center gap-3 py-2">
+                <Icon className={`h-6 w-6 ${color} flex-shrink-0`} />
                 <div>
-                  <p className="text-sm font-semibold text-gray-900">{title}</p>
+                  <p className="text-sm font-bold text-gray-900">{title}</p>
                   <p className="text-xs text-gray-500">{desc}</p>
                 </div>
               </div>
@@ -108,51 +141,77 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Categories */}
+      {/* Popular Categories */}
       {categories.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Shop by Category</h2>
-              <p className="text-gray-500 mt-1">Browse our wide selection of categories</p>
-            </div>
-            <Link href="/products" className="text-primary-600 hover:text-primary-700 text-sm font-semibold flex items-center gap-1">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold text-gray-900 uppercase tracking-wide border-l-4 border-red-600 pl-3">Popular Categories</h2>
+            <Link href="/products" className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1">
               View All <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
-            {categories.slice(0, 6).map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/products?category=${cat.slug}`}
-                className="group flex flex-col items-center p-4 rounded-xl border border-gray-200 hover:border-primary-400 hover:bg-primary-50 transition-all"
-              >
+          <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
+            {categories.slice(0, 8).map((cat) => (
+              <Link key={cat.id} href={`/products?category=${cat.slug}`}
+                className="group flex flex-col items-center p-3 rounded-xl bg-white border border-gray-200 hover:border-red-400 hover:shadow-md transition-all">
                 <span className="text-3xl mb-2">{CATEGORY_ICONS[cat.slug] || '🛍️'}</span>
-                <span className="text-xs font-semibold text-gray-700 text-center group-hover:text-primary-700">{cat.name}</span>
-                <span className="text-xs text-gray-400 mt-0.5">{cat.product_count} items</span>
+                <span className="text-xs font-semibold text-gray-700 text-center group-hover:text-red-600 leading-tight">{cat.name}</span>
               </Link>
             ))}
           </div>
         </section>
       )}
 
-      {/* Featured Products */}
-      {displayProducts.length > 0 && (
-        <section className="bg-gray-50 py-16">
+      {/* Bestsellers */}
+      {bestsellers.length > 0 && (
+        <section className="bg-white py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {featured.length > 0 ? 'Featured Products' : 'Latest Products'}
-                </h2>
-                <p className="text-gray-500 mt-1">Hand-picked for the best value</p>
-              </div>
-              <Link href="/products" className="text-primary-600 hover:text-primary-700 text-sm font-semibold flex items-center gap-1">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900 uppercase tracking-wide border-l-4 border-red-600 pl-3">Bestsellers</h2>
+              <Link href="/products?sort=sold_count&order=desc" className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1">
                 View All <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {displayProducts.map((product) => (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {bestsellers.slice(0, 8).map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* New Products */}
+      {newProducts.length > 0 && (
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900 uppercase tracking-wide border-l-4 border-red-600 pl-3">New Products</h2>
+              <Link href="/products?sort=created_at&order=desc" className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1">
+                View All <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {newProducts.slice(0, 8).map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Featured / Recommended */}
+      {featured.length > 0 && (
+        <section className="bg-white py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold text-gray-900 uppercase tracking-wide border-l-4 border-red-600 pl-3">Recommended Items</h2>
+              <Link href="/products?featured=true" className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1">
+                View All <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {featured.slice(0, 8).map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
             </div>
@@ -161,15 +220,16 @@ export default async function HomePage() {
       )}
 
       {/* CTA Banner */}
-      <section className="bg-gradient-to-r from-gray-900 to-gray-700 text-white py-16">
+      <section className="bg-gradient-to-r from-red-600 to-orange-500 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Start Shopping?</h2>
-          <p className="text-gray-300 mb-8 text-lg">Join thousands of satisfied customers today</p>
-          <Link href="/auth/register" className="inline-flex items-center gap-2 bg-primary-600 hover:bg-primary-700 text-white font-bold px-8 py-4 rounded-xl transition-colors text-lg shadow-lg">
+          <h2 className="text-3xl font-bold mb-3">Ready to Start Shopping?</h2>
+          <p className="text-white/80 mb-6 text-lg">Join thousands of satisfied customers today</p>
+          <Link href="/auth/register" className="inline-flex items-center gap-2 bg-white text-red-600 font-bold px-8 py-3 rounded-xl hover:bg-gray-100 transition-colors shadow-lg">
             Create Free Account <ArrowRight className="h-5 w-5" />
           </Link>
         </div>
       </section>
+
     </div>
   );
 }
