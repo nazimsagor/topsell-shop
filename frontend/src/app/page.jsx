@@ -118,21 +118,31 @@ export default function HomePage() {
 
       {/* Popular Categories */}
       {categories.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold text-gray-900 uppercase tracking-wide border-l-4 border-red-600 pl-3">Popular Categories</h2>
-            <Link href="/products" className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1">
-              View All <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-          <div className="grid grid-cols-4 md:grid-cols-8 gap-3">
-            {categories.slice(0, 8).map((cat) => (
-              <Link key={cat.id} href={`/products?category=${cat.slug}`}
-                className="group flex flex-col items-center p-3 rounded-xl bg-white border border-gray-200 hover:border-red-400 hover:shadow-md transition-all">
-                <span className="text-3xl mb-2">{CATEGORY_ICONS[cat.slug] || '🛍️'}</span>
-                <span className="text-xs font-semibold text-gray-700 text-center group-hover:text-red-600 leading-tight">{cat.name}</span>
-              </Link>
-            ))}
+        <section className="bg-white py-14">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-10">
+              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 uppercase tracking-wider">
+                Popular Categories
+              </h2>
+              <div className="mt-2 mx-auto w-20 h-1 bg-red-600 rounded-full" />
+              <p className="mt-3 text-sm text-gray-500">Shop by your favorite category</p>
+            </div>
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-6">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.id}
+                  href={`/products?category=${cat.slug}`}
+                  className="group flex flex-col items-center gap-3"
+                >
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-red-600 bg-white flex items-center justify-center shadow-sm group-hover:bg-red-600 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
+                    <span className="text-4xl md:text-5xl">{CATEGORY_ICONS[cat.slug] || '🛍️'}</span>
+                  </div>
+                  <span className="text-xs md:text-sm font-semibold text-gray-700 text-center group-hover:text-red-600 leading-tight transition-colors">
+                    {cat.name}
+                  </span>
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
       )}
