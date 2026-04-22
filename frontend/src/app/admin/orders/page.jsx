@@ -73,7 +73,7 @@ export default function AdminOrdersPage() {
                 return (
                 <tr key={order.id} className="hover:bg-gray-50">
                   <td className="px-5 py-3 font-mono font-semibold text-primary-600">
-                    <Link href={`/account/orders/${order.id}`} className="hover:underline">#{orderRef}</Link>
+                    <Link href={`/admin/orders/${order.id}`} className="hover:underline">#{orderRef}</Link>
                   </td>
                   <td className="px-5 py-3 text-gray-600">{customerName}</td>
                   <td className="px-5 py-3 text-gray-500 whitespace-nowrap">{new Date(order.created_at).toLocaleDateString()}</td>
@@ -83,7 +83,7 @@ export default function AdminOrdersPage() {
                   </td>
                   <td className="px-5 py-3 text-gray-600 text-xs">{paymentLabel}</td>
                   <td className="px-5 py-3">
-                    <Link href={`/account/orders/${order.id}`} className="text-primary-600 hover:underline text-xs">View</Link>
+                    <Link href={`/admin/orders/${order.id}`} className="text-primary-600 hover:underline text-xs">View</Link>
                   </td>
                 </tr>
                 );
