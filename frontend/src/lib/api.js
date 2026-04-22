@@ -76,6 +76,11 @@ export const ordersApi = {
   updateStatus: (id, data) => api.patch(`/orders/${id}/status`, data),
 };
 
+// Payment (SSLCommerz)
+export const paymentApi = {
+  init: (data) => api.post('/payment/init', data),
+};
+
 // Uploads
 export const uploadsApi = {
   uploadImage: (file, onProgress) => {

@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { toast } from 'react-hot-toast';
@@ -17,29 +17,21 @@ import {
 } from 'lucide-react';
 import useCartStore from '../../store/useCartStore';
 import useAuthStore from '../../store/useAuthStore';
-import { ordersApi } from '../../lib/api';
-
-const formatCardNumber = (v) =>
-  v.replace(/\D/g, '').slice(0, 16).replace(/(.{4})/g, '$1 ').trim();
-
-const formatExpiry = (v) => {
-  const digits = v.replace(/\D/g, '').slice(0, 4);
-  return digits.length > 2 ? `${digits.slice(0, 2)}/${digits.slice(2)}` : digits;
-};
+import { ordersApi, paymentApi } from '../../lib/api';
 
 const PAYMENT_METHODS = [
-  { id: 'card',             label: 'Credit/Debit Card', icon: CreditCard },
-  { id: 'bkash',            label: 'bKash',             icon: Smartphone },
-  { id: 'cash_on_delivery', label: 'Cash on Delivery',  icon: Wallet },
+  { id: 'sslcommerz',       label: 'Pay Online (Card / bKash / Nagad / Rocket)', icon: CreditCard, hint: 'Secure checkout via SSLCommerz' },
+  { id: 'cash_on_delivery', label: 'Cash on Delivery', icon: Wallet },
 ];
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { items, cartId, subtotal, clearCart } = useCartStore();
   const { user, loading: authLoading } = useAuthStore();
 
   const [shippingMethod, setShippingMethod] = useState('standard');
-  const [paymentMethod, setPaymentMethod] = useState('cash_on_delivery');
+  const [paymentMethod, setPaymentMethod] = useState('sslcommerz');
   const [couponCode, setCouponCode] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [placedOrder, setPlacedOrder] = useState(null);
@@ -47,8 +39,6 @@ export default function CheckoutPage() {
   const {
     register,
     handleSubmit,
-    setValue,
-    watch,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -60,11 +50,6 @@ export default function CheckoutPage() {
       district: '',
       postal_code: '',
       country: 'Bangladesh',
-      card_number: '',
-      card_expiry: '',
-      card_cvv: '',
-      card_name: '',
-      bkash_phone: '',
     },
   });
 
@@ -75,13 +60,23 @@ export default function CheckoutPage() {
     }
   }, [user, authLoading, router]);
 
+  // Surface payment-gateway errors returned via ?error=
+  useEffect(() => {
+    const err = searchParams.get('error');
+    if (!err) return;
+    const messages = {
+      payment_failed:    'Payment failed. Please try again.',
+      payment_cancelled: 'Payment was cancelled.',
+      payment_invalid:   'Payment could not be verified. Please try again.',
+      order_not_found:   'We could not locate your order. Please try again.',
+    };
+    toast.error(messages[err] || 'Something went wrong with your payment.');
+  }, [searchParams]);
+
   const sub = parseFloat(subtotal) || 0;
   const shipping = shippingMethod === 'express' ? 8 : sub >= 50 ? 0 : 3;
   const tax = +(sub * 0.08).toFixed(2);
   const total = +(sub + shipping + tax).toFixed(2);
-
-  const cardNumber = watch('card_number');
-  const cardExpiry = watch('card_expiry');
 
   // --- Guards -------------------------------------------------------------
 
@@ -141,39 +136,41 @@ export default function CheckoutPage() {
   const onPlaceOrder = async (data) => {
     setSubmitting(true);
     try {
-      const paymentDetails =
-        paymentMethod === 'card'
-          ? {
-              card_last4: data.card_number.replace(/\s/g, '').slice(-4),
-              card_name: data.card_name,
-              card_expiry: data.card_expiry,
-            }
-          : paymentMethod === 'bkash'
-            ? { bkash_phone: data.bkash_phone }
-            : {};
+      const shipping_address = {
+        full_name: data.full_name,
+        phone: data.phone,
+        street: data.street,
+        street2: data.street2 || undefined,
+        city: data.city,
+        district: data.district,
+        postal_code: data.postal_code,
+        country: data.country,
+        shipping_method: shippingMethod,
+      };
 
+      // --- Online payment via SSLCommerz ---------------------------------
+      if (paymentMethod === 'sslcommerz') {
+        const { data: resp } = await paymentApi.init({ shipping_address });
+        if (!resp?.url) throw new Error('Failed to create payment session');
+        // Redirect to the SSLCommerz gateway. Cart is cleared only after
+        // the success callback on the backend, so a failed payment keeps
+        // the cart intact.
+        window.location.href = resp.url;
+        return;
+      }
+
+      // --- Cash on Delivery ---------------------------------------------
       const { data: order } = await ordersApi.create({
         cart_id: cartId,
-        shipping_address: {
-          full_name: data.full_name,
-          phone: data.phone,
-          street: data.street,
-          street2: data.street2 || undefined,
-          city: data.city,
-          district: data.district,
-          postal_code: data.postal_code,
-          country: data.country,
-          shipping_method: shippingMethod,
-        },
+        shipping_address,
         payment_method: paymentMethod,
-        payment_details: paymentDetails,
         coupon_code: couponCode.trim() || undefined,
       });
       await clearCart();
       toast.success('Order placed successfully!');
       setPlacedOrder(order);
     } catch (err) {
-      toast.error(err.response?.data?.error || 'Failed to place order');
+      toast.error(err.response?.data?.error || err.message || 'Failed to place order');
     } finally {
       setSubmitting(false);
     }
@@ -314,7 +311,7 @@ export default function CheckoutPage() {
             <h2 className="text-lg font-bold text-gray-900">Payment Method</h2>
 
             <div className="space-y-2">
-              {PAYMENT_METHODS.map(({ id, label, icon: Icon }) => (
+              {PAYMENT_METHODS.map(({ id, label, icon: Icon, hint }) => (
                 <label
                   key={id}
                   className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors ${
@@ -329,104 +326,27 @@ export default function CheckoutPage() {
                     className="accent-red-600"
                   />
                   <Icon className="h-5 w-5 text-gray-600" />
-                  <span className="text-sm font-semibold text-gray-900">{label}</span>
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-gray-900">{label}</p>
+                    {hint && <p className="text-xs text-gray-500">{hint}</p>}
+                  </div>
                 </label>
               ))}
             </div>
 
-            {/* Card fields */}
-            {paymentMethod === 'card' && (
-              <div className="space-y-4 pt-2 border-t border-gray-100">
+            {paymentMethod === 'sslcommerz' && (
+              <div className="pt-2 border-t border-gray-100 text-sm text-gray-600 bg-blue-50 rounded-lg p-4 flex gap-3">
+                <Smartphone className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
-                  <input
-                    {...register('card_number', {
-                      required: paymentMethod === 'card' ? 'Card number is required' : false,
-                      validate: (v) =>
-                        paymentMethod !== 'card' ||
-                        v.replace(/\s/g, '').length === 16 ||
-                        'Card number must be 16 digits',
-                    })}
-                    value={cardNumber || ''}
-                    onChange={(e) => setValue('card_number', formatCardNumber(e.target.value), { shouldValidate: true })}
-                    placeholder="1234 5678 9012 3456"
-                    inputMode="numeric"
-                    className={inputCls}
-                  />
-                  {errors.card_number && <p className="text-red-500 text-xs mt-1">{errors.card_number.message}</p>}
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Expiry (MM/YY)</label>
-                    <input
-                      {...register('card_expiry', {
-                        required: paymentMethod === 'card' ? 'Expiry is required' : false,
-                        pattern: {
-                          value: /^(0[1-9]|1[0-2])\/\d{2}$/,
-                          message: 'Format MM/YY',
-                        },
-                      })}
-                      value={cardExpiry || ''}
-                      onChange={(e) => setValue('card_expiry', formatExpiry(e.target.value), { shouldValidate: true })}
-                      placeholder="MM/YY"
-                      inputMode="numeric"
-                      className={inputCls}
-                    />
-                    {errors.card_expiry && <p className="text-red-500 text-xs mt-1">{errors.card_expiry.message}</p>}
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
-                    <input
-                      {...register('card_cvv', {
-                        required: paymentMethod === 'card' ? 'CVV is required' : false,
-                        pattern: { value: /^\d{3,4}$/, message: '3 or 4 digits' },
-                      })}
-                      placeholder="123"
-                      inputMode="numeric"
-                      maxLength={4}
-                      className={inputCls}
-                    />
-                    {errors.card_cvv && <p className="text-red-500 text-xs mt-1">{errors.card_cvv.message}</p>}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
-                  <input
-                    {...register('card_name', {
-                      required: paymentMethod === 'card' ? 'Cardholder name is required' : false,
-                    })}
-                    placeholder="Name on card"
-                    className={inputCls}
-                  />
-                  {errors.card_name && <p className="text-red-500 text-xs mt-1">{errors.card_name.message}</p>}
+                  <p className="font-semibold text-gray-900 mb-1">You will be redirected to SSLCommerz.</p>
+                  <p className="text-xs">
+                    Pay securely with Visa, Mastercard, AmEx, bKash, Nagad, Rocket, or any supported
+                    Bangladeshi bank. Your order will be confirmed automatically after a successful payment.
+                  </p>
                 </div>
               </div>
             )}
 
-            {/* bKash */}
-            {paymentMethod === 'bkash' && (
-              <div className="pt-2 border-t border-gray-100">
-                <label className="block text-sm font-medium text-gray-700 mb-1">bKash Number</label>
-                <input
-                  {...register('bkash_phone', {
-                    required: paymentMethod === 'bkash' ? 'bKash number is required' : false,
-                    pattern: { value: /^01[0-9]{9}$/, message: 'Must be 11 digits starting with 01' },
-                  })}
-                  placeholder="01XXXXXXXXX"
-                  inputMode="numeric"
-                  maxLength={11}
-                  className={inputCls}
-                />
-                {errors.bkash_phone && <p className="text-red-500 text-xs mt-1">{errors.bkash_phone.message}</p>}
-                <p className="text-xs text-gray-500 mt-2">
-                  You will receive a bKash payment request on this number after placing the order.
-                </p>
-              </div>
-            )}
-
-            {/* COD */}
             {paymentMethod === 'cash_on_delivery' && (
               <div className="pt-2 border-t border-gray-100 text-sm text-gray-600 bg-gray-50 rounded-lg p-4">
                 Pay in cash to the delivery agent when your order arrives. Please keep the exact amount ready.

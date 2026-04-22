@@ -10,6 +10,7 @@ const cartRoutes = require('./src/routes/cart');
 const orderRoutes = require('./src/routes/orders');
 const userRoutes = require('./src/routes/users');
 const uploadRoutes = require('./src/routes/uploads');
+const paymentRoutes = require('./src/routes/payment');
 
 const { errorHandler } = require('./src/middleware/errorHandler');
 
@@ -34,6 +35,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/payment', paymentRoutes);
 
 app.use(errorHandler);
 
