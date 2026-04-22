@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, Truck, Shield, RefreshCw, Headphones, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
@@ -24,6 +24,40 @@ const HERO_SLIDES = [
   { image: '/banners/banner2.png', link: '/products?category=sports' },
   { image: '/banners/banner3.png', link: '/products?category=toys-games' },
 ];
+
+function PromoPair({ left, right }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      {[left, right].map((b, i) => (
+        <Link key={i} href={b.href} className="relative block h-48 rounded-lg overflow-hidden shadow-sm group">
+          <img src={b.image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function ProductRail({ products }) {
+  const ref = useRef(null);
+  const scroll = (dx) => ref.current?.scrollBy({ left: dx, behavior: 'smooth' });
+  return (
+    <div className="relative">
+      <button onClick={() => scroll(-400)} aria-label="Scroll left" className="hidden md:flex absolute -left-3 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-100 text-gray-900 rounded-full p-2 shadow-lg border border-gray-200">
+        <ChevronLeft className="h-5 w-5" />
+      </button>
+      <button onClick={() => scroll(400)} aria-label="Scroll right" className="hidden md:flex absolute -right-3 top-1/2 -translate-y-1/2 z-10 bg-white hover:bg-gray-100 text-gray-900 rounded-full p-2 shadow-lg border border-gray-200">
+        <ChevronRight className="h-5 w-5" />
+      </button>
+      <div ref={ref} className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0">
+        {products.map((p) => (
+          <div key={p.id} className="flex-shrink-0 snap-start w-[calc(50%-8px)] md:w-[calc(20%-13px)]">
+            <ProductCard product={p} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function HomePage() {
   const [slide, setSlide] = useState(0);
@@ -168,17 +202,17 @@ export default function HomePage() {
       {bestsellers.length > 0 && (
         <section className="bg-white py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <PromoPair
+              left={{ image: '/banners/banner1.png', href: '/products?category=home-garden' }}
+              right={{ image: '/banners/banner2.png', href: '/products?category=electronics' }}
+            />
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900 uppercase tracking-wide border-l-4 border-red-600 pl-3">Bestsellers</h2>
+              <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-wide">Bestsellers</h2>
               <Link href="/products?sort=sold_count&order=desc" className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1">
                 View All <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {bestsellers.slice(0, 8).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <ProductRail products={bestsellers} />
           </div>
         </section>
       )}
@@ -187,17 +221,17 @@ export default function HomePage() {
       {newProducts.length > 0 && (
         <section className="py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <PromoPair
+              left={{ image: '/banners/banner2.png', href: '/products?category=sports' }}
+              right={{ image: '/banners/banner3.png', href: '/products?category=toys-games' }}
+            />
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900 uppercase tracking-wide border-l-4 border-red-600 pl-3">New Products</h2>
+              <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-wide">New Products</h2>
               <Link href="/products?sort=created_at&order=desc" className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1">
                 View All <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {newProducts.slice(0, 8).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <ProductRail products={newProducts} />
           </div>
         </section>
       )}
@@ -206,17 +240,17 @@ export default function HomePage() {
       {featured.length > 0 && (
         <section className="bg-white py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <PromoPair
+              left={{ image: '/banners/banner3.png', href: '/products?category=beauty' }}
+              right={{ image: '/banners/banner1.png', href: '/products?category=fitness' }}
+            />
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900 uppercase tracking-wide border-l-4 border-red-600 pl-3">Recommended Items</h2>
+              <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-wide">Recommended Items</h2>
               <Link href="/products?featured=true" className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1">
                 View All <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {featured.slice(0, 8).map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+            <ProductRail products={featured} />
           </div>
         </section>
       )}
