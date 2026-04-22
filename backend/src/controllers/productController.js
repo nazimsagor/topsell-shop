@@ -57,10 +57,12 @@ exports.getProducts = asyncHandler(async (req, res) => {
 
 exports.getProduct = asyncHandler(async (req, res) => {
   const { slug } = req.params;
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug);
+  const col = isUuid ? 'id' : 'slug';
   const { data, error } = await supabase
     .from('products')
     .select('*, categories(name, slug)')
-    .eq('slug', slug)
+    .eq(col, slug)
     .maybeSingle();
   if (error) throw error;
   if (!data) return res.status(404).json({ error: 'Product not found' });

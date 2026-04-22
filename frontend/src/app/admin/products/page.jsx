@@ -124,7 +124,7 @@ export default function AdminProductsPage() {
                   </td>
                   <td className="px-5 py-3">
                     <div className="flex gap-2">
-                      <Link href={`/admin/products/${product.id}/edit`} className="p-1.5 rounded-lg text-gray-500 hover:text-primary-600 hover:bg-primary-50">
+                      <Link href={`/admin/products/${product.id}`} className="p-1.5 rounded-lg text-gray-500 hover:text-primary-600 hover:bg-primary-50">
                         <Edit className="h-4 w-4" />
                       </Link>
                       <button onClick={() => handleDelete(product.id, product.name)} className="p-1.5 rounded-lg text-gray-500 hover:text-red-600 hover:bg-red-50">
