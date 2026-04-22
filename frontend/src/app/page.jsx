@@ -127,15 +127,23 @@ export default function HomePage() {
               <div className="mt-2 mx-auto w-20 h-1 bg-red-600 rounded-full" />
               <p className="mt-3 text-sm text-gray-500">Shop by your favorite category</p>
             </div>
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-6">
+            <div className="flex md:grid md:grid-cols-4 lg:grid-cols-8 gap-6 overflow-x-auto pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:overflow-visible snap-x snap-mandatory md:snap-none scrollbar-hide">
               {categories.map((cat) => (
                 <Link
                   key={cat.id}
                   href={`/products?category=${cat.slug}`}
-                  className="group flex flex-col items-center gap-3"
+                  className="group flex flex-col items-center gap-3 flex-shrink-0 snap-start w-24 md:w-auto"
                 >
-                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-red-600 bg-white flex items-center justify-center shadow-sm group-hover:bg-red-600 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
-                    <span className="text-4xl md:text-5xl">{CATEGORY_ICONS[cat.slug] || '🛍️'}</span>
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full border-2 border-red-600 bg-white flex items-center justify-center shadow-sm overflow-hidden group-hover:bg-red-600 group-hover:scale-110 group-hover:shadow-lg transition-all duration-300">
+                    {cat.image ? (
+                      <img
+                        src={cat.image}
+                        alt={cat.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-4xl md:text-5xl">{CATEGORY_ICONS[cat.slug] || '🛍️'}</span>
+                    )}
                   </div>
                   <span className="text-xs md:text-sm font-semibold text-gray-700 text-center group-hover:text-red-600 leading-tight transition-colors">
                     {cat.name}
