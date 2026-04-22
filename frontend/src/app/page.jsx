@@ -74,7 +74,7 @@ export default function HomePage() {
 
       {/* Hero Slider */}
       <section className="relative overflow-hidden bg-gray-900">
-        <div className="relative w-full" style={{height: '420px'}}>
+        <div className="relative w-full" style={{height: '600px'}}>
           {HERO_SLIDES.map((s, i) => (
             <div key={i} className={`absolute inset-0 transition-opacity duration-700 ${i === slide ? 'opacity-100' : 'opacity-0'}`}>
               <img src={s.image} alt={`Banner ${i+1}`} className="w-full h-full object-cover" />
