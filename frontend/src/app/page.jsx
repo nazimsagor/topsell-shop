@@ -2,22 +2,21 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ArrowRight, Truck, Shield, RefreshCw, Headphones, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowRight, Truck, Shield, RefreshCw, Headphones, ChevronLeft, ChevronRight, ChevronDown, ChevronUp } from 'lucide-react';
 import ProductCard from '../components/products/ProductCard';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 const CATEGORY_ICONS = {
-  electronics: '💻',
-  clothing: '👗',
-  'home-garden': '🏡',
-  sports: '⚽',
-  books: '📚',
-  beauty: '💄',
-  automotive: '🚗',
-  'food-grocery': '🛒',
-  'health-wellness': '💊',
-  'toys-games': '🧸',
+  'aroma-diffusers': '🕯️', 'automotive': '🚗', 'bathroom': '🚿',
+  'beauty-personal-care': '💄', 'books': '📚', 'camping': '⛺',
+  'car-accessories': '🔧', 'childrens-goods': '🧸', 'christmas': '🎄',
+  'clothing': '👗', 'cosmetics': '💋', 'electronics': '💻',
+  'fitness': '🏋️', 'food-grocery': '🛒', 'garden': '🌱',
+  'health': '💊', 'health-wellness': '❤️', 'home-garden': '🏡',
+  'home-craftsman': '🔨', 'kitchen': '🍳', 'pets': '🐾',
+  'shaving-and-haircut': '✂️', 'solar-lighting': '☀️', 'sports': '⚽',
+  'sports-fitness': '🏃', 'toys-games': '🎮', 'video-surveillance': '📹',
 };
 
 const HERO_SLIDES = [
@@ -28,6 +27,7 @@ const HERO_SLIDES = [
 
 export default function HomePage() {
   const [slide, setSlide] = useState(0);
+  const [showAllCats, setShowAllCats] = useState(false);
   const [categories, setCategories] = useState([]);
   const [featured, setFeatured] = useState([]);
   const [newProducts, setNewProducts] = useState([]);
@@ -109,41 +109,57 @@ export default function HomePage() {
       {categories.length > 0 && (
         <section className="bg-white py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900 uppercase tracking-wide border-l-4 border-red-600 pl-3">
+            <div className="mb-8 text-center">
+              <h2 className="inline-block text-xl font-bold text-gray-900 uppercase tracking-wide border-l-4 border-red-600 pl-3 mx-auto">
                 Popular Categories
               </h2>
-              <Link href="/products" className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1">
-                View All <ArrowRight className="h-4 w-4" />
-              </Link>
             </div>
-            <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-4">
-              {[...categories]
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .slice(0, 20)
-                .map((cat) => (
-                  <Link
-                    key={cat.id}
-                    href={`/products?category=${cat.slug}`}
-                    className="group flex flex-col items-center gap-2"
-                  >
-                    <div className="w-20 h-20 rounded-full border-2 border-red-500 bg-white flex items-center justify-center overflow-hidden group-hover:bg-red-500 group-hover:scale-105 transition-all duration-300">
-                      {cat.image ? (
-                        <img
-                          src={cat.image}
-                          alt={cat.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span className="text-3xl">{CATEGORY_ICONS[cat.slug] || '🛍️'}</span>
-                      )}
+            {(() => {
+              const sorted = [...categories].sort((a, b) => a.name.localeCompare(b.name));
+              const visible = showAllCats ? sorted : sorted.slice(0, 16);
+              return (
+                <>
+                  <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-4 justify-center">
+                    {visible.map((cat) => (
+                      <Link
+                        key={cat.id}
+                        href={`/products?category=${cat.slug}`}
+                        className="group flex flex-col items-center gap-2"
+                      >
+                        <div className="w-20 h-20 rounded-full border-2 border-red-500 bg-white flex items-center justify-center overflow-hidden group-hover:bg-red-500 group-hover:scale-105 transition-all duration-300">
+                          {cat.image ? (
+                            <img
+                              src={cat.image}
+                              alt={cat.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-3xl">{CATEGORY_ICONS[cat.slug] || '🛍️'}</span>
+                          )}
+                        </div>
+                        <span className="text-xs font-medium text-gray-700 text-center group-hover:text-red-600 leading-tight transition-colors line-clamp-2">
+                          {cat.name}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                  {sorted.length > 16 && (
+                    <div className="mt-8 flex justify-center">
+                      <button
+                        onClick={() => setShowAllCats(v => !v)}
+                        className="inline-flex items-center gap-2 text-red-600 hover:text-red-700 text-sm font-bold border-2 border-red-600 hover:border-red-700 px-5 py-2 rounded-full transition-colors"
+                      >
+                        {showAllCats ? (
+                          <>Show Less <ChevronUp className="h-4 w-4" /></>
+                        ) : (
+                          <>See All Categories <ChevronDown className="h-4 w-4" /></>
+                        )}
+                      </button>
                     </div>
-                    <span className="text-xs font-medium text-gray-700 text-center group-hover:text-red-600 leading-tight transition-colors line-clamp-2">
-                      {cat.name}
-                    </span>
-                  </Link>
-                ))}
-            </div>
+                  )}
+                </>
+              );
+            })()}
           </div>
         </section>
       )}
