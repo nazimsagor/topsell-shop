@@ -22,27 +22,18 @@ const CATEGORY_ICONS = {
 
 const HERO_SLIDES = [
   {
-    title: 'Shop Smarter, Live Better',
-    subtitle: 'Discover thousands of products at unbeatable prices',
-    badge: 'New Arrivals',
-    bg: 'from-orange-600 to-red-700',
-    link: '/products?sort=created_at&order=desc',
+    image: '/banners/banner1.jpg',
+    link: '/products?category=home-garden',
     btnText: 'Shop Now',
   },
   {
-    title: 'Best Deals This Week',
-    subtitle: 'Free shipping on orders over $50',
-    badge: 'Hot Deals',
-    bg: 'from-blue-600 to-indigo-700',
-    link: '/products?featured=true',
+    image: '/banners/banner2.jpg',
+    link: '/products?category=sports',
     btnText: 'View Deals',
   },
   {
-    title: 'Top Rated Products',
-    subtitle: 'Handpicked by our customers',
-    badge: 'Bestsellers',
-    bg: 'from-green-600 to-teal-700',
-    link: '/products?sort=rating&order=desc',
+    image: '/banners/banner3.jpg',
+    link: '/products?category=toys-games',
     btnText: 'Explore',
   },
 ];
@@ -82,39 +73,32 @@ export default function HomePage() {
       </div>
 
       {/* Hero Slider */}
-      <section className="relative overflow-hidden">
-        <div className={`bg-gradient-to-r ${HERO_SLIDES[slide].bg} text-white transition-all duration-700`}>
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-28 flex items-center justify-between">
-            <div className="max-w-xl">
-              <span className="inline-block bg-white/20 text-white text-xs font-bold px-3 py-1 rounded-full mb-4 uppercase tracking-widest">
-                {HERO_SLIDES[slide].badge}
-              </span>
-              <h1 className="text-4xl md:text-5xl font-extrabold leading-tight mb-4">
-                {HERO_SLIDES[slide].title}
-              </h1>
-              <p className="text-white/80 text-lg mb-8">{HERO_SLIDES[slide].subtitle}</p>
-              <Link href={HERO_SLIDES[slide].link} className="inline-flex items-center gap-2 bg-white text-gray-900 font-bold px-8 py-3 rounded-xl hover:bg-gray-100 transition-colors shadow-lg">
-                {HERO_SLIDES[slide].btnText} <ArrowRight className="h-5 w-5" />
-              </Link>
+      <section className="relative overflow-hidden bg-gray-900">
+        <div className="relative w-full" style={{height: '420px'}}>
+          {HERO_SLIDES.map((s, i) => (
+            <div key={i} className={`absolute inset-0 transition-opacity duration-700 ${i === slide ? 'opacity-100' : 'opacity-0'}`}>
+              <img src={s.image} alt={`Banner ${i+1}`} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/20 flex items-end pb-8 px-8">
+                <Link href={s.link} className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl transition-colors shadow-lg">
+                  {s.btnText} <ArrowRight className="h-5 w-5" />
+                </Link>
+              </div>
             </div>
-            <div className="hidden md:flex flex-col items-center gap-2 text-6xl">
-              🛍️
-            </div>
-          </div>
+          ))}
         </div>
 
         {/* Slider controls */}
-        <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 text-white rounded-full p-2 transition-colors">
-          <ChevronLeft className="h-5 w-5" />
+        <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors">
+          <ChevronLeft className="h-6 w-6" />
         </button>
-        <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 text-white rounded-full p-2 transition-colors">
-          <ChevronRight className="h-5 w-5" />
+        <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-2 transition-colors">
+          <ChevronRight className="h-6 w-6" />
         </button>
 
         {/* Dots */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
           {HERO_SLIDES.map((_, i) => (
-            <button key={i} onClick={() => setSlide(i)} className={`w-2.5 h-2.5 rounded-full transition-all ${i === slide ? 'bg-white w-6' : 'bg-white/50'}`} />
+            <button key={i} onClick={() => setSlide(i)} className={`h-2.5 rounded-full transition-all ${i === slide ? 'bg-white w-6' : 'bg-white/50 w-2.5'}`} />
           ))}
         </div>
       </section>
