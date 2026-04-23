@@ -1,5 +1,6 @@
 const supabase = require('../config/db');
 const { asyncHandler } = require('../middleware/errorHandler');
+const { _internal: couponHelpers } = require('./couponController');
 
 function sb({ data, error }) {
   if (error) throw Object.assign(new Error(error.message), { status: 400 });
@@ -25,24 +26,16 @@ exports.createOrder = asyncHandler(async (req, res) => {
 
   const subtotal = +(cartItems.reduce((s, i) => s + i.products.price * i.qty, 0)).toFixed(2);
 
-  // Validate coupon only if provided. Empty/whitespace is ignored silently.
-  let validCoupon = null;
+  // Validate coupon only if provided. Invalid / expired / under-minimum coupons
+  // are rejected with 400 so the user knows why their discount didn't apply.
+  let validCouponCode = null;
   let discount = 0;
   if (rawCoupon) {
-    const { data: coupon } = await supabase
-      .from('coupons')
-      .select('code, discount_type, discount_value, active')
-      .eq('code', rawCoupon)
-      .maybeSingle();
-
-    if (coupon && coupon.active !== false) {
-      validCoupon = coupon.code;
-      discount =
-        coupon.discount_type === 'percent'
-          ? +(subtotal * (coupon.discount_value / 100)).toFixed(2)
-          : +coupon.discount_value;
-    }
-    // Invalid or missing coupon: ignore silently instead of erroring.
+    const coupon = await couponHelpers.findCouponByCode(rawCoupon);
+    const result = couponHelpers.evaluateCoupon(coupon, subtotal);
+    if (!result.ok) return res.status(400).json({ error: result.reason });
+    validCouponCode = coupon.code;
+    discount = result.discount;
   }
 
   const shippingMethod = shipping_address?.shipping_method;
@@ -63,6 +56,7 @@ exports.createOrder = asyncHandler(async (req, res) => {
       shipping_address: shipping_address || null,
       payment_method: payment_method || 'cash_on_delivery',
       discount: discount || 0,
+      coupon_code: validCouponCode,
     })
     .select()
     .single());
@@ -85,6 +79,11 @@ exports.createOrder = asyncHandler(async (req, res) => {
   );
 
   await supabase.from('cart').delete().eq('user_id', userId);
+
+  // Increment coupon usage counter (best-effort; failure doesn't fail the order).
+  if (validCouponCode) {
+    couponHelpers.incrementUsage(validCouponCode).catch(() => {});
+  }
 
   res.status(201).json(order);
 });

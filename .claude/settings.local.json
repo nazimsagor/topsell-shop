@@ -16,7 +16,22 @@
       "Bash(gh pr create --title 'feat: redesign product card with Amazon-style visuals' --body ' *)",
       "PowerShell(Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue })",
       "PowerShell(Get-NetTCPConnection -LocalPort 3000,3001 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 1; \"cleared\")",
-      "PowerShell(Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue })"
+      "PowerShell(Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue | Select-Object -ExpandProperty OwningProcess -Unique | ForEach-Object { Stop-Process -Id $_ -Force -ErrorAction SilentlyContinue })",
+      "Bash(npx vercel *)",
+      "Bash(curl -sS -o - -w \"\\\\n---\\\\nHTTP %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/health)",
+      "Bash(cat)",
+      "Read(//tmp/**)",
+      "Read(//c/Users/Nazim Uddin/.local/share/com.vercel.cli/**)",
+      "Read(//c/Users/Nazim Uddin/.config/com.vercel.cli/**)",
+      "Read(//c/Users/Nazim Uddin/**)",
+      "Bash(awk '{print $1, $NF != \"ago\" ? $\\(NF-2\\)\" \"$\\(NF-1\\) : $\\(NF-1\\)\" \"$NF}')",
+      "Bash(awk '{print $1}')",
+      "Bash(curl -sS -w \"\\\\nHTTP %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/health)",
+      "Bash(curl -sS -w \"HTTP %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/health)",
+      "Bash(curl -sS -w \"\\\\nHTTP %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/api/categories)",
+      "Bash(curl -sS 'https://api.vercel.com/v9/projects/__TRACKED_VAR__/env?teamId=__TRACKED_VAR__' -H 'Authorization: Bearer __TRACKED_VAR__')",
+      "Bash(curl -sS -w \"  HTTP %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/health)",
+      "Bash(curl -sS -w \"\\\\n  HTTP %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/api/categories)"
     ]
   }
 }

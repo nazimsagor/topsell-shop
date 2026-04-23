@@ -1,6 +1,7 @@
 const SSLCommerzPayment = require('sslcommerz-lts');
 const supabase = require('../config/db');
 const { asyncHandler } = require('../middleware/errorHandler');
+const { _internal: couponHelpers } = require('./couponController');
 
 const STORE_ID   = process.env.SSLCOMMERZ_STORE_ID;
 const STORE_PWD  = process.env.SSLCOMMERZ_STORE_PASSWORD;
@@ -32,6 +33,7 @@ exports.initPayment = asyncHandler(async (req, res) => {
 
   const userId = req.user.id;
   const { shipping_address } = req.body || {};
+  const rawCoupon = (req.body?.coupon_code || '').trim();
   if (!shipping_address) return res.status(400).json({ error: 'shipping_address required' });
 
   // Load cart with product details
@@ -48,10 +50,23 @@ exports.initPayment = asyncHandler(async (req, res) => {
   }
 
   const subtotal = +(cartItems.reduce((s, i) => s + i.products.price * i.qty, 0)).toFixed(2);
+
+  // Validate coupon (if provided) using the same shared rules as order creation.
+  let validCouponCode = null;
+  let discount = 0;
+  if (rawCoupon) {
+    const coupon = await couponHelpers.findCouponByCode(rawCoupon);
+    const result = couponHelpers.evaluateCoupon(coupon, subtotal);
+    if (!result.ok) return res.status(400).json({ error: result.reason });
+    validCouponCode = coupon.code;
+    discount = result.discount;
+  }
+
   const shippingMethod = shipping_address?.shipping_method;
-  const shippingCost = shippingMethod === 'express' ? 8 : subtotal >= 50 ? 0 : 3;
-  const tax   = +(subtotal * 0.08).toFixed(2);
-  const total = +(subtotal + shippingCost + tax).toFixed(2);
+  const discountedSubtotal = Math.max(0, +(subtotal - discount).toFixed(2));
+  const shippingCost = shippingMethod === 'express' ? 8 : discountedSubtotal >= 50 ? 0 : 3;
+  const tax   = +(discountedSubtotal * 0.08).toFixed(2);
+  const total = +(discountedSubtotal + shippingCost + tax).toFixed(2);
 
   // Create order with status=pending, payment_method=sslcommerz
   const order = sb(await supabase
@@ -65,6 +80,8 @@ exports.initPayment = asyncHandler(async (req, res) => {
       status: 'pending',
       payment_method: 'sslcommerz',
       shipping_address: shipping_address || null,
+      discount: discount || 0,
+      coupon_code: validCouponCode,
     })
     .select()
     .single());
@@ -156,7 +173,7 @@ async function getOrderFromCallback(body) {
   if (!orderId) return null;
   const { data } = await supabase
     .from('orders')
-    .select('id, user_id, status')
+    .select('id, user_id, status, coupon_code')
     .eq('id', orderId)
     .maybeSingle();
   return data;
@@ -199,6 +216,11 @@ exports.paymentSuccess = asyncHandler(async (req, res) => {
   }
 
   await supabase.from('cart').delete().eq('user_id', order.user_id);
+
+  // Increment coupon usage (best-effort).
+  if (order.coupon_code) {
+    couponHelpers.incrementUsage(order.coupon_code).catch(() => {});
+  }
 
   res.redirect(`${FRONTEND}/order-success?orderId=${order.id}`);
 });

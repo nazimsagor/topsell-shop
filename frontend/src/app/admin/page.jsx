@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Package, ShoppingBag, Users, DollarSign, TrendingUp, Plus } from 'lucide-react';
+import { Package, ShoppingBag, Users, DollarSign, TrendingUp, Plus, Tag } from 'lucide-react';
 import useAuthStore from '../../store/useAuthStore';
 import { usersApi } from '../../lib/api';
 
@@ -90,6 +90,7 @@ export default function AdminDashboard() {
           { href: '/admin/products', label: 'Manage Products', icon: Package },
           { href: '/admin/orders',   label: 'Manage Orders',   icon: ShoppingBag },
           { href: '/admin/customers',label: 'View Customers',  icon: Users },
+          { href: '/admin/coupons',  label: 'Manage Coupons',  icon: Tag },
         ].map(({ href, label, icon: Icon }) => (
           <Link
             key={href}

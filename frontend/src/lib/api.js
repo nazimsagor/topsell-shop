@@ -81,6 +81,18 @@ export const paymentApi = {
   init: (data) => api.post('/payment/init', data),
 };
 
+// Coupons
+export const couponsApi = {
+  // Customer
+  validate: (data) => api.post('/coupons/validate', data),
+  // Admin
+  getAll:   () => api.get('/admin/coupons'),
+  getOne:   (id) => api.get(`/admin/coupons/${id}`),
+  create:   (data) => api.post('/admin/coupons', data),
+  update:   (id, data) => api.patch(`/admin/coupons/${id}`, data),
+  delete:   (id) => api.delete(`/admin/coupons/${id}`),
+};
+
 // Uploads
 export const uploadsApi = {
   uploadImage: (file, onProgress) => {

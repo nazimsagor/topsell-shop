@@ -14,10 +14,12 @@ import {
   CheckCircle2,
   ArrowRight,
   Loader2,
+  Tag,
+  X,
 } from 'lucide-react';
 import useCartStore from '../../store/useCartStore';
 import useAuthStore from '../../store/useAuthStore';
-import { ordersApi, paymentApi } from '../../lib/api';
+import { ordersApi, paymentApi, couponsApi } from '../../lib/api';
 
 const PAYMENT_METHODS = [
   { id: 'sslcommerz',       label: 'SSLCommerz (Card / bKash / Nagad)', icon: CreditCard, hint: 'All-in-one secure online payment' },
@@ -47,6 +49,8 @@ function CheckoutContent() {
   const [shippingMethod, setShippingMethod] = useState('standard');
   const [paymentMethod, setPaymentMethod] = useState('sslcommerz');
   const [couponCode, setCouponCode] = useState('');
+  const [applyingCoupon, setApplyingCoupon] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState(null); // { code, discount, discount_type, discount_value }
   const [submitting, setSubmitting] = useState(false);
   const [placedOrder, setPlacedOrder] = useState(null);
 
@@ -88,9 +92,37 @@ function CheckoutContent() {
   }, [searchParams]);
 
   const sub = parseFloat(subtotal) || 0;
-  const shipping = shippingMethod === 'express' ? 8 : sub >= 50 ? 0 : 3;
-  const tax = +(sub * 0.08).toFixed(2);
-  const total = +(sub + shipping + tax).toFixed(2);
+  const discount = Math.min(appliedCoupon?.discount || 0, sub);
+  const discountedSub = Math.max(0, +(sub - discount).toFixed(2));
+  const shipping = shippingMethod === 'express' ? 8 : discountedSub >= 50 ? 0 : 3;
+  const tax = +(discountedSub * 0.08).toFixed(2);
+  const total = +(discountedSub + shipping + tax).toFixed(2);
+
+  const applyCoupon = async () => {
+    const code = couponCode.trim().toUpperCase();
+    if (!code) return toast.error('Enter a coupon code');
+    setApplyingCoupon(true);
+    try {
+      const { data } = await couponsApi.validate({ code, subtotal: sub });
+      setAppliedCoupon({
+        code: data.code,
+        discount: Number(data.discount) || 0,
+        discount_type: data.discount_type,
+        discount_value: data.discount_value,
+      });
+      toast.success(`Coupon "${data.code}" applied`);
+    } catch (err) {
+      setAppliedCoupon(null);
+      toast.error(err.response?.data?.error || 'Invalid coupon');
+    } finally {
+      setApplyingCoupon(false);
+    }
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+  };
 
   // --- Guards -------------------------------------------------------------
 
@@ -164,7 +196,10 @@ function CheckoutContent() {
 
       // --- Online payment via SSLCommerz ---------------------------------
       if (paymentMethod === 'sslcommerz') {
-        const { data: resp } = await paymentApi.init({ shipping_address });
+        const { data: resp } = await paymentApi.init({
+          shipping_address,
+          coupon_code: appliedCoupon?.code,
+        });
         if (!resp?.url) throw new Error('Failed to create payment session');
         // Redirect to the SSLCommerz gateway. Cart is cleared only after
         // the success callback on the backend, so a failed payment keeps
@@ -178,7 +213,7 @@ function CheckoutContent() {
         cart_id: cartId,
         shipping_address,
         payment_method: paymentMethod,
-        coupon_code: couponCode.trim() || undefined,
+        coupon_code: appliedCoupon?.code || undefined,
       });
       await clearCart();
       toast.success('Order placed successfully!');
@@ -403,18 +438,64 @@ function CheckoutContent() {
             {/* Coupon */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Coupon Code</label>
-              <div className="flex gap-2">
-                <input
-                  value={couponCode}
-                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                  placeholder="Optional"
-                  className={inputCls}
-                />
-              </div>
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between gap-2 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <Tag className="h-4 w-4 text-green-600 flex-shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-mono font-bold text-green-700 truncate">{appliedCoupon.code}</p>
+                      <p className="text-xs text-green-700">
+                        {appliedCoupon.discount_type === 'percent'
+                          ? `${Number(appliedCoupon.discount_value)}% off`
+                          : `$${Number(appliedCoupon.discount_value).toFixed(2)} off`}
+                        {' • '}
+                        −${discount.toFixed(2)}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={removeCoupon}
+                    className="p-1 rounded hover:bg-green-100 text-green-700"
+                    aria-label="Remove coupon"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <input
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        applyCoupon();
+                      }
+                    }}
+                    placeholder="Enter code"
+                    className={`${inputCls} flex-1`}
+                  />
+                  <button
+                    type="button"
+                    onClick={applyCoupon}
+                    disabled={applyingCoupon || !couponCode.trim()}
+                    className="px-4 py-2 rounded-lg bg-gray-900 hover:bg-black text-white text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+                  >
+                    {applyingCoupon ? '...' : 'Apply'}
+                  </button>
+                </div>
+              )}
             </div>
 
             <div className="border-t border-gray-200 pt-3 space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span>${sub.toFixed(2)}</span></div>
+              {appliedCoupon && (
+                <div className="flex justify-between text-green-700">
+                  <span>Discount ({appliedCoupon.code})</span>
+                  <span>−${discount.toFixed(2)}</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-gray-600">Delivery</span>
                 <span>{shipping === 0 ? <span className="text-green-600">Free</span> : `$${shipping.toFixed(2)}`}</span>
