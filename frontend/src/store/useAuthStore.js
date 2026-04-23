@@ -26,6 +26,13 @@ const useAuthStore = create((set) => ({
     return data;
   },
 
+  loginWithGoogle: async (access_token) => {
+    const { data } = await authApi.google({ access_token });
+    localStorage.setItem('token', data.token);
+    set({ user: data.user, token: data.token });
+    return data;
+  },
+
   register: async (credentials) => {
     const { data } = await authApi.register(credentials);
     localStorage.setItem('token', data.token);

@@ -1,4 +1,5 @@
 const bcrypt   = require('bcryptjs');
+const crypto   = require('crypto');
 const jwt      = require('jsonwebtoken');
 const supabase = require('../config/db');
 const { asyncHandler } = require('../middleware/errorHandler');
@@ -63,6 +64,49 @@ exports.login = asyncHandler(async (req, res) => {
 
   const { password: _, ...safeUser } = user;
   res.json({ token: signToken(user.id), user: safeUser });
+});
+
+// -------------------------------------------------------------------
+// POST /api/auth/google
+// Frontend completes Google OAuth through Supabase, then sends us the
+// Supabase access_token. We verify it server-side, upsert the user in
+// our own `users` table by email, and return an app JWT so the rest
+// of the app (orders, cart, admin) keeps working unchanged.
+// -------------------------------------------------------------------
+exports.googleLogin = asyncHandler(async (req, res) => {
+  const { access_token } = req.body || {};
+  if (!access_token) return res.status(400).json({ error: 'access_token required' });
+
+  // Verify the token against Supabase — getUser accepts any valid JWT.
+  const { data: gUser, error: gErr } = await supabase.auth.getUser(access_token);
+  if (gErr || !gUser?.user) {
+    return res.status(401).json({ error: 'Invalid Google session' });
+  }
+
+  const email = gUser.user.email;
+  if (!email) return res.status(400).json({ error: 'Google account has no email' });
+
+  const meta = gUser.user.user_metadata || {};
+  const name = meta.full_name || meta.name || email.split('@')[0];
+
+  // Upsert our users row. Existing email → reuse row. New email → create
+  // with a random password (OAuth users never sign in by password).
+  let { data: user } = await supabase
+    .from('users')
+    .select('id, name, email, role, created_at')
+    .eq('email', email)
+    .maybeSingle();
+
+  if (!user) {
+    const randomPw = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
+    user = sb(await supabase
+      .from('users')
+      .insert({ name, email, password: randomPw })
+      .select('id, name, email, role, created_at')
+      .single());
+  }
+
+  res.json({ token: signToken(user.id), user });
 });
 
 exports.getMe = asyncHandler(async (req, res) => {
