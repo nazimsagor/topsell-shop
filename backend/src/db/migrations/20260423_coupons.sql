@@ -17,8 +17,9 @@ CREATE TABLE IF NOT EXISTS coupons (
 CREATE INDEX IF NOT EXISTS idx_coupons_code_upper ON coupons ((UPPER(code)));
 CREATE INDEX IF NOT EXISTS idx_coupons_active     ON coupons (is_active) WHERE is_active = TRUE;
 
--- Persist the applied coupon on each order so we can audit / report later.
+-- Persist the applied coupon + discount on each order so we can audit / report later.
 ALTER TABLE orders ADD COLUMN IF NOT EXISTS coupon_code TEXT;
+ALTER TABLE orders ADD COLUMN IF NOT EXISTS discount    NUMERIC(10, 2) NOT NULL DEFAULT 0;
 
 -- Atomic usage increment (used by the order flow after a successful checkout).
 CREATE OR REPLACE FUNCTION increment_coupon_usage(p_code TEXT)

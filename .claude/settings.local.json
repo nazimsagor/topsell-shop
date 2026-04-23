@@ -31,7 +31,9 @@
       "Bash(curl -sS -w \"\\\\nHTTP %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/api/categories)",
       "Bash(curl -sS 'https://api.vercel.com/v9/projects/__TRACKED_VAR__/env?teamId=__TRACKED_VAR__' -H 'Authorization: Bearer __TRACKED_VAR__')",
       "Bash(curl -sS -w \"  HTTP %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/health)",
-      "Bash(curl -sS -w \"\\\\n  HTTP %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/api/categories)"
+      "Bash(curl -sS -w \"\\\\n  HTTP %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/api/categories)",
+      "Bash(node src/db/run-coupons-migration.js)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:Nazim1201718010@db.gvbbkzpzeejzjnnrgtaj.supabase.co:5432/postgres\" node src/db/run-coupons-migration.js)"
     ]
   }
 }
