@@ -55,4 +55,11 @@ async function start() {
   });
 }
 
-start();
+// On Vercel (serverless) the platform imports this module and invokes the
+// exported Express app as a handler — we must NOT call app.listen().
+// Locally (node server.js / nodemon) we start a real HTTP listener.
+if (!process.env.VERCEL) {
+  start();
+}
+
+module.exports = app;
