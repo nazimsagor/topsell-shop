@@ -29,28 +29,29 @@ function CallbackContent() {
       }
 
       try {
-        // Implicit flow — Supabase parses the #access_token hash itself
-        // (detectSessionInUrl:true). Give it 500ms to finish, then read
-        // the session.
-        await new Promise((r) => setTimeout(r, 500));
+        // Log everything about the current URL
+        console.log('Full URL:', window.location.href);
+        console.log('Hash:', window.location.hash);
+        console.log('Search:', window.location.search);
 
+        // Wait for Supabase to process
+        await new Promise((r) => setTimeout(r, 1000));
+
+        // Try getSession
         const { data, error } = await supabase.auth.getSession();
-        if (error) throw error;
+        console.log('Session data:', JSON.stringify(data));
+        console.log('Session error:', error);
 
         const accessToken = data?.session?.access_token;
         if (!accessToken) throw new Error('No session returned from Google');
 
         await loginWithGoogle(accessToken);
-
-        // Clear the Supabase session — we only used it to get the token.
-        // Our own app JWT (in localStorage) is what keeps the user logged in.
         await supabase.auth.signOut();
-
         toast.success('Welcome!');
         const redirect = searchParams.get('redirect') || '/';
         router.replace(redirect);
       } catch (err) {
-        console.error('[auth/callback]', err);
+        console.error('[auth/callback] full error:', err);
         toast.error(err.response?.data?.error || err.message || 'Google sign-in failed');
         router.replace('/auth/login');
       }
