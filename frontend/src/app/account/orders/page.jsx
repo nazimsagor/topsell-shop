@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Package, ChevronRight } from 'lucide-react';
+import { Package, ChevronRight, Truck } from 'lucide-react';
 import useAuthStore from '@/store/useAuthStore';
 import { ordersApi } from '@/lib/api';
 
@@ -55,21 +55,35 @@ export default function OrdersPage() {
       ) : (
         <div className="space-y-4">
           {orders.map((order) => (
-            <Link key={order.id} href={`/account/orders/${order.id}`} className="card p-5 block hover:shadow-md transition-shadow">
+            <div key={order.id} className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md transition-shadow">
               <div className="flex items-center justify-between mb-3">
-                <div>
+                <div className="min-w-0">
                   <span className="font-mono font-bold text-gray-900">{order.order_number}</span>
-                  <span className={`ml-3 badge ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-600'}`}>
+                  <span className={`ml-3 inline-block px-2.5 py-0.5 text-xs font-semibold rounded-full ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-600'}`}>
                     {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
                   </span>
                 </div>
-                <ChevronRight className="h-5 w-5 text-gray-400" />
+                <ChevronRight className="h-5 w-5 text-gray-400 flex-shrink-0" />
               </div>
-              <div className="flex items-center justify-between text-sm text-gray-500">
+              <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                 <span>{new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
                 <span className="font-semibold text-gray-900">${parseFloat(order.total).toFixed(2)}</span>
               </div>
-            </Link>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Link
+                  href={`/account/orders/${order.id}`}
+                  className="flex-1 inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 rounded-lg text-sm transition-colors"
+                >
+                  <Truck className="h-4 w-4" /> Track Order
+                </Link>
+                <Link
+                  href={`/account/orders/${order.id}`}
+                  className="flex-1 inline-flex items-center justify-center gap-2 border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-2 rounded-lg text-sm transition-colors"
+                >
+                  View Details
+                </Link>
+              </div>
+            </div>
           ))}
         </div>
       )}
