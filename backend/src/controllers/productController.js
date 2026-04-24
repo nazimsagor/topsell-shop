@@ -41,7 +41,7 @@ exports.getProducts = asyncHandler(async (req, res) => {
   if (min_price)           query = query.gte('price', parseFloat(min_price));
   if (max_price)           query = query.lte('price', parseFloat(max_price));
   if (featured === 'true') query = query.not('badge', 'is', null);
-  if (badge)               query = query.eq('badge', badge);
+  if (badge)               query = query.ilike('badge', badge);
 
   const allowedSorts = { price: 'price', name: 'name', id: 'id', stock: 'stock' };
   const sortCol = allowedSorts[sort] || 'id';

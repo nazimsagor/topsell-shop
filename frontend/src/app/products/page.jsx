@@ -116,11 +116,11 @@ function ProductsContent() {
   );
 
   const currentSort = `${filters.sort}:${filters.order}`;
-  const BADGE_LABELS = { new: 'New Products', bestseller: 'Bestsellers', sale: 'On Sale', hot: 'Hot Deals' };
+  const BADGE_LABELS = { NEW: 'New Products', BESTSELLER: 'Bestsellers', SALE: 'On Sale', HOT: 'Hot Deals', FEATURED: 'Featured Products' };
   const heading = filters.search
     ? `Results for "${filters.search}"`
     : filters.badge
-      ? (BADGE_LABELS[filters.badge] || `${filters.badge} Products`)
+      ? (BADGE_LABELS[filters.badge?.toUpperCase()] || `${filters.badge} Products`)
       : filters.featured === 'true'
         ? 'Featured Products'
         : filters.category
