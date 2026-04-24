@@ -17,6 +17,11 @@ function CallbackContent() {
     ran.current = true;
 
     (async () => {
+      // DEBUG: verify env vars are reaching the client bundle.
+      console.log('SUPABASE URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+      console.log('ANON KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.slice(0, 20));
+      console.log('isSupabaseConfigured:', isSupabaseConfigured);
+
       if (!isSupabaseConfigured || !supabase) {
         toast.error('Google sign-in is not configured.');
         router.replace('/auth/login');

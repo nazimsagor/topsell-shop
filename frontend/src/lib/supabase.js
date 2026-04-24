@@ -7,6 +7,12 @@ import { createClient } from '@supabase/supabase-js';
 const url  = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+// DEBUG: confirm env vars are baked into the bundle at build time.
+if (typeof window !== 'undefined') {
+  console.log('[supabase.js] URL:', url);
+  console.log('[supabase.js] ANON:', anon?.slice(0, 20), '(length:', anon?.length, ')');
+}
+
 export const supabase = url && anon
   ? createClient(url, anon, {
       auth: {
