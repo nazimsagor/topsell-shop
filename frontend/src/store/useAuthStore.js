@@ -43,6 +43,11 @@ const useAuthStore = create((set) => ({
   logout: () => {
     localStorage.removeItem('token');
     set({ user: null, token: null });
+    // Hard redirect — avoids stale client cache from protected pages and
+    // works regardless of which component triggered the logout.
+    if (typeof window !== 'undefined') {
+      window.location.href = '/auth/login';
+    }
   },
 
   setUser: (user) => set({ user }),
