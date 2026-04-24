@@ -128,7 +128,7 @@ function LoginContent() {
             <Link href="/auth/register" className="text-primary-600 font-semibold hover:underline">Create one</Link>
           </div>
           <div className="mt-4 p-3 bg-gray-50 rounded-lg text-xs text-gray-500 text-center">
-            Demo customer: <strong>customer@topsell.shop</strong> / <strong>Customer123</strong>
+            Demo customer: <strong>customer@gmail.com</strong> / <strong>Customer123</strong>
           </div>
         </div>
       </div>
