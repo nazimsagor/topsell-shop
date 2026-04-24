@@ -29,6 +29,10 @@ function CallbackContent() {
       }
 
       try {
+        // Give the client a tick to finish hydrating from localStorage
+        // (PKCE code_verifier lookup) before we ask it to consume ?code=.
+        await new Promise((r) => setTimeout(r, 100));
+
         // PKCE flow: exchange the ?code= in the URL for a Supabase session.
         const { data, error } = await supabase.auth.exchangeCodeForSession(
           window.location.href
