@@ -10,9 +10,10 @@ const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 export const supabase = url && anon
   ? createClient(url, anon, {
       auth: {
-        persistSession: true,      // needed so getSession() works on /auth/callback
+        persistSession: true,       // keeps the PKCE code_verifier across the redirect
         autoRefreshToken: false,
-        detectSessionInUrl: true,
+        detectSessionInUrl: false,  // we handle the exchange manually in /auth/callback
+        flowType: 'pkce',
       },
     })
   : null;
