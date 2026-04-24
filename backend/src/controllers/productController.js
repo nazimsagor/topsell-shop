@@ -15,7 +15,7 @@ exports.getProducts = asyncHandler(async (req, res) => {
   const {
     page = 1, limit = 12, category, search,
     sort = 'id', order = 'desc',
-    min_price, max_price, featured,
+    min_price, max_price, featured, badge,
   } = req.query;
 
   const lim  = Math.min(parseInt(limit) || 12, 100);
@@ -41,6 +41,7 @@ exports.getProducts = asyncHandler(async (req, res) => {
   if (min_price)           query = query.gte('price', parseFloat(min_price));
   if (max_price)           query = query.lte('price', parseFloat(max_price));
   if (featured === 'true') query = query.not('badge', 'is', null);
+  if (badge)               query = query.eq('badge', badge);
 
   const allowedSorts = { price: 'price', name: 'name', id: 'id', stock: 'stock' };
   const sortCol = allowedSorts[sort] || 'id';

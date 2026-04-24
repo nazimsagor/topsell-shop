@@ -175,8 +175,8 @@ export default function Header() {
 
               {/* Nav links */}
               <Link href="/" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">🏠 Home</Link>
-              <Link href="/products?sort=created_at&order=desc" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">🆕 New Products</Link>
-              <Link href="/products?sort=sold_count&order=desc" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">🔥 Bestsellers</Link>
+              <Link href="/products?badge=new" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">🆕 New Products</Link>
+              <Link href="/products?badge=bestseller" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">🔥 Bestsellers</Link>
               <Link href="/products?featured=true" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">⭐ Featured</Link>
               <Link href="/products?category=electronics" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">💻 Electronics</Link>
               <Link href="/products?category=sports" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">⚽ Sports</Link>

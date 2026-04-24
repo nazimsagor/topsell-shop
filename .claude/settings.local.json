@@ -33,7 +33,18 @@
       "Bash(curl -sS -w \"  HTTP %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/health)",
       "Bash(curl -sS -w \"\\\\n  HTTP %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/api/categories)",
       "Bash(node src/db/run-coupons-migration.js)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:Nazim1201718010@db.gvbbkzpzeejzjnnrgtaj.supabase.co:5432/postgres\" node src/db/run-coupons-migration.js)"
+      "Bash(DATABASE_URL=\"postgresql://postgres:Nazim1201718010@db.gvbbkzpzeejzjnnrgtaj.supabase.co:5432/postgres\" node src/db/run-coupons-migration.js)",
+      "Bash(vercel --prod --yes)",
+      "Bash(curl -s -o /dev/null -w \"health: %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/health)",
+      "Bash(curl -s -o /dev/null -w \"admin/coupons \\(no auth, expect 401\\): %{http_code}\\\\n\" https://backend-five-nu-51.vercel.app/api/admin/coupons)",
+      "Bash(curl -s -o /dev/null -w \"coupons/validate \\(no auth, expect 401\\): %{http_code}\\\\n\" -X POST -H \"Content-Type: application/json\" -d '{\"code\":\"TEST\"}' https://backend-five-nu-51.vercel.app/api/coupons/validate)",
+      "Bash(node -e \"require\\('./src/controllers/authController'\\); require\\('./src/routes/auth'\\); console.log\\('ok'\\)\")",
+      "Bash(curl -s -o /dev/null -w \"/api/auth/google \\(no body, expect 400\\): %{http_code}\\\\n\" -X POST -H \"Content-Type: application/json\" -d '{}' https://backend-five-nu-51.vercel.app/api/auth/google)",
+      "Bash(python generate_pdf.py)",
+      "Bash(py --version)",
+      "Bash(mkdir -p \"C:/Users/Nazim Uddin/Downloads/topsell.shop/.pdftmp\")",
+      "Bash(npm init *)",
+      "Bash(node build.js)"
     ]
   }
 }

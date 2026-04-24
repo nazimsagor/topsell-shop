@@ -27,6 +27,7 @@ const DEFAULT_FILTERS = {
   sort:      'id',
   order:     'desc',
   featured:  '',
+  badge:     '',
   page:      1,
 };
 
@@ -39,7 +40,9 @@ function ProductsContent() {
   const [loading, setLoading]       = useState(true);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const [filters, setFilters] = useState({
+  // Build the filter state from the current URL. Called on mount AND whenever
+  // the query string changes (e.g. user clicks a nav link while already on /products).
+  const buildFromParams = useCallback(() => ({
     ...DEFAULT_FILTERS,
     search:    searchParams.get('search')    || '',
     category:  searchParams.get('category')  || '',
@@ -48,8 +51,18 @@ function ProductsContent() {
     sort:      searchParams.get('sort')      || 'id',
     order:     searchParams.get('order')     || 'desc',
     featured:  searchParams.get('featured')  || '',
+    badge:     searchParams.get('badge')     || '',
     page:      parseInt(searchParams.get('page')) || 1,
-  });
+  }), [searchParams]);
+
+  const [filters, setFilters] = useState(buildFromParams);
+
+  // Re-sync when the URL changes (nav links, back/forward button).
+  useEffect(() => {
+    const next = buildFromParams();
+    setFilters(next);
+    setPriceDraft({ min: next.min_price, max: next.max_price });
+  }, [buildFromParams]);
 
   // Price inputs are deferred — user types, then hits "Apply" (or Enter).
   // This avoids firing an API call on every keystroke.
@@ -98,16 +111,21 @@ function ProductsContent() {
   };
 
   const activeCount = useMemo(
-    () => [filters.category, filters.min_price, filters.max_price, filters.featured].filter(Boolean).length,
+    () => [filters.category, filters.min_price, filters.max_price, filters.featured, filters.badge].filter(Boolean).length,
     [filters]
   );
 
   const currentSort = `${filters.sort}:${filters.order}`;
+  const BADGE_LABELS = { new: 'New Products', bestseller: 'Bestsellers', sale: 'On Sale', hot: 'Hot Deals' };
   const heading = filters.search
     ? `Results for "${filters.search}"`
-    : filters.category
-      ? (categories.find((c) => c.slug === filters.category)?.name || 'Products')
-      : 'All Products';
+    : filters.badge
+      ? (BADGE_LABELS[filters.badge] || `${filters.badge} Products`)
+      : filters.featured === 'true'
+        ? 'Featured Products'
+        : filters.category
+          ? (categories.find((c) => c.slug === filters.category)?.name || 'Products')
+          : 'All Products';
 
   // -----------------------------------------------------------------------
   // Filter panel — rendered in both the desktop sidebar and mobile drawer.
@@ -282,6 +300,15 @@ function ProductsContent() {
             >
               ${filters.min_price || '0'} – ${filters.max_price || '∞'}
               <X className="h-3 w-3" />
+            </button>
+          )}
+          {filters.badge && (
+            <button
+              type="button"
+              onClick={() => updateFilter('badge', '')}
+              className="inline-flex items-center gap-1.5 bg-red-50 text-red-700 border border-red-200 rounded-full px-3 py-1 text-xs font-semibold hover:bg-red-100 capitalize"
+            >
+              {filters.badge} <X className="h-3 w-3" />
             </button>
           )}
           {filters.featured === 'true' && (
