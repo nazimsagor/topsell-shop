@@ -51,6 +51,7 @@ export const productsApi = {
   create: (data) => api.post('/products', data),
   update: (id, data) => api.patch(`/products/${id}`, data),
   delete: (id) => api.delete(`/products/${id}`),
+  getReviews: (id) => api.get(`/products/${id}/reviews`),
   addReview: (id, data) => api.post(`/products/${id}/reviews`, data),
 };
 
