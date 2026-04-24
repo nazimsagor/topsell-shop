@@ -36,8 +36,8 @@ function buildClient() {
       storageKey: 'sb-topsell-auth',
       persistSession: true,
       autoRefreshToken: false,
-      detectSessionInUrl: false, // we handle the exchange manually in /auth/callback
-      flowType: 'pkce',
+      detectSessionInUrl: true,  // let Supabase parse the #access_token hash on /auth/callback
+      flowType: 'implicit',
     },
   });
 }

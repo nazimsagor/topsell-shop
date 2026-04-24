@@ -29,15 +29,12 @@ function CallbackContent() {
       }
 
       try {
-        // Give the client a tick to finish hydrating from localStorage
-        // (PKCE code_verifier lookup) before we ask it to consume ?code=.
-        await new Promise((r) => setTimeout(r, 100));
+        // Implicit flow — Supabase parses the #access_token hash itself
+        // (detectSessionInUrl:true). Give it 500ms to finish, then read
+        // the session.
+        await new Promise((r) => setTimeout(r, 500));
 
-        // PKCE flow: exchange the ?code= in the URL for a Supabase session.
-        const { data, error } = await supabase.auth.exchangeCodeForSession(
-          window.location.href
-        );
-
+        const { data, error } = await supabase.auth.getSession();
         if (error) throw error;
 
         const accessToken = data?.session?.access_token;
