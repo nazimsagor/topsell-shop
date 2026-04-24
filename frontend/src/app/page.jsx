@@ -1,8 +1,11 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { ArrowRight, Truck, Shield, RefreshCw, Headphones, ChevronLeft, ChevronRight, ChevronDown, ChevronUp, Star } from 'lucide-react';
+import {
+  ArrowRight, Truck, Shield, RefreshCw, Headphones,
+  ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
+  Flame, Mail, Sparkles, Gift, Star,
+} from 'lucide-react';
 import ProductCard from '../components/products/ProductCard';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
@@ -20,94 +23,49 @@ const CATEGORY_ICONS = {
 };
 
 const BLOG_POSTS = [
-  {
-    title: 'Top 10 Kitchen Gadgets You Need in 2026',
-    category: 'Kitchen',
-    description: 'Discover the must-have kitchen tools that will transform your cooking experience. From smart appliances to innovative utensils.',
-    image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600',
-    date: 'April 15, 2026',
-    slug: 'top-10-kitchen-gadgets',
-  },
-  {
-    title: 'Best Fitness Equipment for Home Workouts',
-    category: 'Fitness',
-    description: 'Build your perfect home gym with these essential fitness tools. Stay fit without leaving your house with our top picks.',
-    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600',
-    date: 'April 10, 2026',
-    slug: 'best-fitness-equipment',
-  },
-  {
-    title: 'How to Choose the Right Security Camera',
-    category: 'Electronics',
-    description: 'Protect your home with the right security camera system. Learn what features matter most when choosing surveillance equipment.',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600',
-    date: 'April 5, 2026',
-    slug: 'choose-security-camera',
-  },
+  { title: 'Top 10 Kitchen Gadgets You Need in 2026', category: 'Kitchen',     description: 'Discover the must-have kitchen tools that will transform your cooking experience.', image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600', date: 'April 15, 2026', slug: 'top-10-kitchen-gadgets' },
+  { title: 'Best Fitness Equipment for Home Workouts',   category: 'Fitness',     description: 'Build your perfect home gym with these essential fitness tools. Stay fit without leaving your house.',          image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600', date: 'April 10, 2026', slug: 'best-fitness-equipment' },
+  { title: 'How to Choose the Right Security Camera',    category: 'Electronics', description: 'Protect your home with the right security camera system. Learn what features matter most.',                    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600', date: 'April 5, 2026',  slug: 'choose-security-camera' },
 ];
 
 const HERO_SLIDES = [
   {
     image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1400&h=550&fit=crop',
     link: '/products?category=kitchen',
+    title: "Bangladesh's Best Online Shop",
+    subtitle: 'Everything you need, delivered to your door',
+    cta: 'Shop Now',
   },
   {
     image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1400&h=550&fit=crop',
     link: '/products?category=fitness',
+    title: 'Home Fitness Essentials',
+    subtitle: 'Premium gear at unbeatable prices',
+    cta: 'Explore Fitness',
   },
   {
     image: 'https://images.unsplash.com/photo-1472289065668-ce650ac443d2?w=1400&h=550&fit=crop',
     link: '/products?category=toys-games',
+    title: 'Fun for the Whole Family',
+    subtitle: 'Toys & games the kids will love',
+    cta: 'Browse Toys',
   },
 ];
 
-function PromoPair({ left, right }) {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      {[left, right].map((b, i) => (
-        <Link key={i} href={b.href} className="relative block h-48 rounded-lg overflow-hidden shadow-sm group">
-          <img src={b.image} alt="" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-        </Link>
-      ))}
-    </div>
-  );
-}
+// -------- helpers ---------------------------------------------------------
 
-function ProductListItem({ product }) {
-  const rating = parseFloat(product.rating) || 4.5;
-  const discount = product.old_price
-    ? Math.round((1 - product.price / product.old_price) * 100)
-    : 0;
-  return (
-    <Link href={`/products/${product.slug}`} className="flex items-center gap-3 py-3 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors group">
-      <div className="relative w-16 h-16 flex-shrink-0 rounded-md overflow-hidden bg-gray-100">
-        {product.image ? (
-          <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-2xl">📦</div>
-        )}
-        {discount > 0 && (
-          <span className="absolute top-0.5 left-0.5 bg-red-600 text-white text-[9px] font-bold px-1 py-0.5 rounded">
-            -{discount}%
-          </span>
-        )}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-semibold text-gray-800 truncate group-hover:text-red-600">{product.name}</p>
-        <div className="flex items-center gap-1 mt-0.5">
-          {[1,2,3,4,5].map(i => (
-            <Star key={i} className={`h-3 w-3 ${i <= Math.round(rating) ? 'fill-yellow-400 text-yellow-400' : 'fill-gray-200 text-gray-200'}`} />
-          ))}
-        </div>
-        <div className="flex items-baseline gap-2 mt-1">
-          <span className="text-sm font-bold text-red-600">${parseFloat(product.price).toFixed(2)}</span>
-          {product.old_price && (
-            <span className="text-xs text-gray-400 line-through">${parseFloat(product.old_price).toFixed(2)}</span>
-          )}
-        </div>
-      </div>
-    </Link>
-  );
+function useCountdown(hours = 24) {
+  const [end] = useState(() => Date.now() + hours * 60 * 60 * 1000);
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  const diff = Math.max(0, end - now);
+  const h = String(Math.floor(diff / 3.6e6)).padStart(2, '0');
+  const m = String(Math.floor((diff % 3.6e6) / 6e4)).padStart(2, '0');
+  const s = String(Math.floor((diff % 6e4) / 1000)).padStart(2, '0');
+  return { h, m, s };
 }
 
 function ProductRail({ products }) {
@@ -123,7 +81,7 @@ function ProductRail({ products }) {
       </button>
       <div ref={ref} className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0">
         {products.map((p) => (
-          <div key={p.id} className="flex-shrink-0 snap-start w-[calc(50%-8px)] md:w-[calc(20%-13px)]">
+          <div key={p.id} className="flex-shrink-0 snap-start w-[calc(50%-8px)] md:w-[calc(25%-12px)] lg:w-[calc(20%-13px)]">
             <ProductCard product={p} />
           </div>
         ))}
@@ -132,85 +90,145 @@ function ProductRail({ products }) {
   );
 }
 
+function SectionHeader({ title, subtitle, viewAllHref, icon: Icon, accent = 'text-gray-900' }) {
+  return (
+    <div className="flex items-end justify-between mb-6">
+      <div>
+        <h2 className={`text-2xl sm:text-3xl font-extrabold uppercase tracking-wide flex items-center gap-2 ${accent}`}>
+          {Icon && <Icon className="h-7 w-7" />}
+          {title}
+        </h2>
+        {subtitle && <p className="text-sm text-gray-500 mt-1">{subtitle}</p>}
+      </div>
+      {viewAllHref && (
+        <Link href={viewAllHref} className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1 whitespace-nowrap">
+          View All <ArrowRight className="h-4 w-4" />
+        </Link>
+      )}
+    </div>
+  );
+}
+
+// -------- page ------------------------------------------------------------
+
 export default function HomePage() {
   const [slide, setSlide] = useState(0);
   const [showAllCats, setShowAllCats] = useState(false);
   const [categories, setCategories] = useState([]);
-  const [featured, setFeatured] = useState([]);
+  const [featured, setFeatured]     = useState([]);
   const [newProducts, setNewProducts] = useState([]);
   const [bestsellers, setBestsellers] = useState([]);
-  const [topRated, setTopRated] = useState([]);
-  const [reduced, setReduced] = useState([]);
-  const [topOffer, setTopOffer] = useState([]);
+  const [hotDeals, setHotDeals]     = useState([]);
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
+
+  const countdown = useCountdown(24);
 
   useEffect(() => {
+    // Valid sort columns on the backend are: id | name | price | stock.
+    // id:desc is used as a proxy for "newest" (id is BIGSERIAL).
     fetch(`${API}/categories`).then(r => r.json()).then(d => setCategories(Array.isArray(d) ? d : [])).catch(() => {});
     fetch(`${API}/products/featured`).then(r => r.json()).then(d => setFeatured(Array.isArray(d) ? d.slice(0, 8) : [])).catch(() => {});
-    fetch(`${API}/products?limit=8&sort=created_at&order=desc`).then(r => r.json()).then(d => setNewProducts(Array.isArray(d.products) ? d.products : [])).catch(() => {});
-    fetch(`${API}/products?limit=8&sort=sold_count&order=desc`).then(r => r.json()).then(d => setBestsellers(Array.isArray(d.products) ? d.products : [])).catch(() => {});
-    fetch(`${API}/products?sort=rating&order=desc&limit=5`).then(r => r.json()).then(d => setTopRated(Array.isArray(d.products) ? d.products : [])).catch(() => {});
-    fetch(`${API}/products?sort=price&order=asc&limit=5`).then(r => r.json()).then(d => setReduced(Array.isArray(d.products) ? d.products : [])).catch(() => {});
-    fetch(`${API}/products?featured=true&limit=5`).then(r => r.json()).then(d => setTopOffer(Array.isArray(d.products) ? d.products : [])).catch(() => {});
+    fetch(`${API}/products?limit=8&sort=id&order=desc`).then(r => r.json()).then(d => setNewProducts(Array.isArray(d.products) ? d.products : [])).catch(() => {});
+    fetch(`${API}/products?limit=8&badge=BESTSELLER`).then(r => r.json()).then(d => setBestsellers(Array.isArray(d.products) ? d.products : [])).catch(() => {});
+    // Hot deals — try HOT first, fall back to SALE if empty.
+    fetch(`${API}/products?limit=8&badge=HOT`).then(r => r.json()).then(async d => {
+      const list = Array.isArray(d.products) ? d.products : [];
+      if (list.length) return setHotDeals(list);
+      const sale = await fetch(`${API}/products?limit=8&badge=SALE`).then(r => r.json()).catch(() => ({}));
+      setHotDeals(Array.isArray(sale.products) ? sale.products : []);
+    }).catch(() => {});
   }, []);
 
   useEffect(() => {
-    const t = setInterval(() => setSlide(s => (s + 1) % HERO_SLIDES.length), 4000);
+    const t = setInterval(() => setSlide(s => (s + 1) % HERO_SLIDES.length), 5000);
     return () => clearInterval(t);
   }, []);
 
   const prevSlide = () => setSlide(s => (s - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
   const nextSlide = () => setSlide(s => (s + 1) % HERO_SLIDES.length);
 
+  const handleNewsletter = (e) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim()) return;
+    setNewsletterSubmitted(true);
+    setNewsletterEmail('');
+    setTimeout(() => setNewsletterSubmitted(false), 4000);
+  };
+
   return (
     <div className="bg-gray-50 min-h-screen">
 
-      {/* Hero slider */}
+      {/* ============ HERO SLIDER ============ */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="relative overflow-hidden rounded-2xl bg-gray-100 shadow-md">
-          <div className="relative w-full h-[300px] md:h-[450px] lg:h-[550px]">
+          <div className="relative w-full h-[340px] md:h-[450px] lg:h-[550px]">
             {HERO_SLIDES.map((s, i) => (
-              <Link
+              <div
                 key={i}
-                href={s.link}
-                className={`absolute inset-0 transition-opacity duration-700 cursor-pointer ${i === slide ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none'}`}
+                className={`absolute inset-0 transition-opacity duration-700 ${i === slide ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none'}`}
               >
-                <img src={s.image} alt={`Banner ${i+1}`} className="w-full h-full object-cover" />
-              </Link>
+                <img src={s.image} alt={s.title} className="w-full h-full object-cover" />
+                {/* Dark overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
+                {/* Headline + CTA */}
+                <div className="absolute inset-0 flex items-center">
+                  <div className="px-6 sm:px-12 lg:px-16 max-w-2xl">
+                    <span className="inline-block bg-red-600 text-white text-xs sm:text-sm font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-3">
+                      Welcome to TopSell
+                    </span>
+                    <h1 className="text-white text-3xl sm:text-5xl lg:text-6xl font-extrabold leading-tight mb-3">
+                      {s.title}
+                    </h1>
+                    <p className="text-white/90 text-sm sm:text-lg mb-5 max-w-md">
+                      {s.subtitle}
+                    </p>
+                    <Link
+                      href={s.link}
+                      className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-6 sm:px-8 py-3 rounded-xl shadow-xl transition-all hover:scale-105 text-sm sm:text-base"
+                    >
+                      {s.cta} <ArrowRight className="h-5 w-5" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
 
           {/* Arrows */}
-          <button onClick={prevSlide} aria-label="Previous slide" className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-900 rounded-full p-3 shadow-xl transition-all hover:scale-110">
-            <ChevronLeft className="h-6 w-6" />
+          <button onClick={prevSlide} aria-label="Previous slide" className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-900 rounded-full p-2.5 sm:p-3 shadow-xl transition-all hover:scale-110">
+            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
-          <button onClick={nextSlide} aria-label="Next slide" className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-900 rounded-full p-3 shadow-xl transition-all hover:scale-110">
-            <ChevronRight className="h-6 w-6" />
+          <button onClick={nextSlide} aria-label="Next slide" className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-900 rounded-full p-2.5 sm:p-3 shadow-xl transition-all hover:scale-110">
+            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
 
           {/* Dots */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
             {HERO_SLIDES.map((_, i) => (
-              <button key={i} onClick={() => setSlide(i)} aria-label={`Go to slide ${i+1}`} className={`h-2.5 rounded-full transition-all ${i === slide ? 'bg-white w-6' : 'bg-white/60 w-2.5'}`} />
+              <button key={i} onClick={() => setSlide(i)} aria-label={`Go to slide ${i+1}`} className={`h-2.5 rounded-full transition-all ${i === slide ? 'bg-white w-8' : 'bg-white/60 w-2.5'}`} />
             ))}
           </div>
         </div>
       </section>
 
-      {/* Trust badges */}
-      <section className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+      {/* ============ FEATURES BAR ============ */}
+      <section className="bg-white border-y border-gray-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { icon: Truck, title: 'Free Shipping', desc: 'Orders over $50', color: 'text-orange-500' },
-              { icon: Shield, title: 'Secure Payment', desc: '100% protected', color: 'text-green-500' },
-              { icon: RefreshCw, title: 'Easy Returns', desc: '30-day policy', color: 'text-blue-500' },
-              { icon: Headphones, title: '24/7 Support', desc: 'Always here for you', color: 'text-purple-500' },
+              { icon: Truck,      title: 'Free Shipping', desc: 'On orders over ৳5,000', color: 'bg-orange-100 text-orange-600' },
+              { icon: Shield,     title: 'Secure Payment', desc: 'SSL encrypted',         color: 'bg-green-100 text-green-600' },
+              { icon: RefreshCw,  title: 'Easy Returns',   desc: '7-day return policy',   color: 'bg-blue-100 text-blue-600' },
+              { icon: Headphones, title: '24/7 Support',   desc: 'Dedicated team',        color: 'bg-purple-100 text-purple-600' },
             ].map(({ icon: Icon, title, desc, color }) => (
-              <div key={title} className="flex items-center gap-2 py-1">
-                <Icon className={`h-4 w-4 ${color} flex-shrink-0`} />
-                <div className="leading-tight">
-                  <p className="text-xs font-bold text-gray-900">{title}</p>
-                  <p className="text-[10px] text-gray-500">{desc}</p>
+              <div key={title} className="flex items-center gap-3">
+                <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${color}`}>
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div className="leading-tight min-w-0">
+                  <p className="text-sm font-bold text-gray-900 truncate">{title}</p>
+                  <p className="text-xs text-gray-500 truncate">{desc}</p>
                 </div>
               </div>
             ))}
@@ -218,55 +236,50 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Popular Categories */}
+      {/* ============ POPULAR CATEGORIES ============ */}
       {categories.length > 0 && (
         <section className="bg-white py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="mb-8 text-center">
-              <h2 className="inline-block text-xl font-bold text-gray-900 uppercase tracking-wide border-l-4 border-red-600 pl-3 mx-auto">
-                Popular Categories
-              </h2>
-            </div>
+            <SectionHeader
+              title="Shop by Category"
+              subtitle="Browse our most popular collections"
+              viewAllHref="/products"
+            />
             {(() => {
               const sorted = [...categories].sort((a, b) => a.name.localeCompare(b.name));
-              const visible = showAllCats ? sorted : sorted.slice(0, 16);
+              const visible = showAllCats ? sorted : sorted.slice(0, 12);
               return (
                 <>
-                  <div className="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-4 justify-center">
+                  <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-4">
                     {visible.map((cat) => (
                       <Link
                         key={cat.id}
                         href={`/products?category=${cat.slug}`}
-                        className="group flex flex-col items-center gap-2"
+                        className="group bg-white rounded-xl border border-gray-200 hover:border-red-300 hover:shadow-lg hover:-translate-y-1 transition-all duration-300 p-4 text-center"
                       >
-                        <div className="w-20 h-20 rounded-full border-2 border-red-500 bg-white flex items-center justify-center overflow-hidden group-hover:bg-red-500 group-hover:scale-105 transition-all duration-300">
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center overflow-hidden group-hover:from-red-100 group-hover:to-orange-100 transition-colors mb-3">
                           {cat.image ? (
-                            <img
-                              src={cat.image}
-                              alt={cat.name}
-                              className="w-full h-full object-cover"
-                            />
+                            <img src={cat.image} alt={cat.name} className="w-full h-full object-cover rounded-full" />
                           ) : (
-                            <span className="text-3xl">{CATEGORY_ICONS[cat.slug] || '🛍️'}</span>
+                            <span className="text-3xl sm:text-4xl">{CATEGORY_ICONS[cat.slug] || '🛍️'}</span>
                           )}
                         </div>
-                        <span className="text-xs font-medium text-gray-700 text-center group-hover:text-red-600 leading-tight transition-colors line-clamp-2">
+                        <span className="block text-xs sm:text-sm font-semibold text-gray-800 group-hover:text-red-600 line-clamp-2 transition-colors">
                           {cat.name}
                         </span>
+                        {cat.product_count != null && (
+                          <span className="block text-[10px] text-gray-400 mt-0.5">{cat.product_count} items</span>
+                        )}
                       </Link>
                     ))}
                   </div>
-                  {sorted.length > 16 && (
+                  {sorted.length > 12 && (
                     <div className="mt-8 flex justify-center">
                       <button
                         onClick={() => setShowAllCats(v => !v)}
-                        className="inline-flex items-center gap-2 text-red-600 hover:text-red-700 text-sm font-bold border-2 border-red-600 hover:border-red-700 px-5 py-2 rounded-full transition-colors"
+                        className="inline-flex items-center gap-2 text-red-600 hover:text-white hover:bg-red-600 text-sm font-bold border-2 border-red-600 px-6 py-2.5 rounded-full transition-colors"
                       >
-                        {showAllCats ? (
-                          <>Show Less <ChevronUp className="h-4 w-4" /></>
-                        ) : (
-                          <>See All Categories <ChevronDown className="h-4 w-4" /></>
-                        )}
+                        {showAllCats ? <>Show Less <ChevronUp className="h-4 w-4" /></> : <>See All Categories <ChevronDown className="h-4 w-4" /></>}
                       </button>
                     </div>
                   )}
@@ -277,93 +290,161 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Bestsellers */}
-      {bestsellers.length > 0 && (
-        <section className="bg-white py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <PromoPair
-              left={{ image: 'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=700&h=300&fit=crop', href: '/products?category=electronics' }}
-              right={{ image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=700&h=300&fit=crop', href: '/products?category=clothing' }}
-            />
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-wide">Bestsellers</h2>
-              <Link href="/products?sort=sold_count&order=desc" className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1">
-                View All <ArrowRight className="h-4 w-4" />
-              </Link>
+      {/* ============ FLASH SALE / HOT DEALS ============ */}
+      {hotDeals.length > 0 && (
+        <section className="bg-gradient-to-br from-red-600 via-red-600 to-orange-600 py-12 relative overflow-hidden">
+          {/* Decorative stars */}
+          <div className="absolute top-4 right-4 opacity-20 pointer-events-none">
+            <Sparkles className="h-24 w-24 text-white" />
+          </div>
+          <div className="absolute bottom-4 left-4 opacity-10 pointer-events-none">
+            <Flame className="h-32 w-32 text-white" />
+          </div>
+
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-6">
+              <div>
+                <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-3">
+                  <Flame className="h-4 w-4" /> Limited Time Offer
+                </div>
+                <h2 className="text-3xl sm:text-4xl font-extrabold text-white uppercase tracking-wide">Flash Sale</h2>
+                <p className="text-white/80 text-sm mt-1">Grab these deals before time runs out!</p>
+              </div>
+
+              {/* Countdown */}
+              <div className="flex items-center gap-2">
+                {[
+                  { label: 'Hrs', value: countdown.h },
+                  { label: 'Min', value: countdown.m },
+                  { label: 'Sec', value: countdown.s },
+                ].map((u, i, arr) => (
+                  <div key={u.label} className="flex items-center gap-2">
+                    <div className="bg-white text-red-600 font-extrabold rounded-lg px-3 py-2 min-w-[56px] text-center shadow-lg">
+                      <div className="text-2xl leading-none font-mono">{u.value}</div>
+                      <div className="text-[10px] text-red-500 mt-0.5 font-semibold">{u.label}</div>
+                    </div>
+                    {i < arr.length - 1 && <span className="text-white text-xl font-extrabold">:</span>}
+                  </div>
+                ))}
+              </div>
             </div>
-            <ProductRail products={bestsellers} />
+
+            <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-2xl">
+              <ProductRail products={hotDeals} />
+              <div className="text-center mt-5">
+                <Link href="/products?badge=HOT" className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-2.5 rounded-xl text-sm">
+                  View All Hot Deals <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            </div>
           </div>
         </section>
       )}
 
-      {/* New Products */}
-      {newProducts.length > 0 && (
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <PromoPair
-              left={{ image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&h=300&fit=crop', href: '/products?category=video-surveillance' }}
-              right={{ image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=700&h=300&fit=crop', href: '/products?category=home-garden' }}
-            />
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-wide">New Products</h2>
-              <Link href="/products?sort=created_at&order=desc" className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1">
-                View All <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <ProductRail products={newProducts} />
-          </div>
-        </section>
-      )}
-
-      {/* Featured / Recommended */}
+      {/* ============ FEATURED PRODUCTS ============ */}
       {featured.length > 0 && (
         <section className="bg-white py-12">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <PromoPair
-              left={{ image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=700&h=300&fit=crop', href: '/products?category=beauty-personal-care' }}
-              right={{ image: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=700&h=300&fit=crop', href: '/products?category=camping' }}
+            <SectionHeader
+              title="Featured Products"
+              subtitle="Handpicked by our team"
+              viewAllHref="/products?featured=true"
+              icon={Star}
             />
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-wide">Recommended Items</h2>
-              <Link href="/products?featured=true" className="text-red-600 hover:text-red-700 text-sm font-semibold flex items-center gap-1">
-                View All <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <ProductRail products={featured} />
-          </div>
-        </section>
-      )}
-
-      {/* Top Rated / Reduced / Top Offer */}
-      {(topRated.length > 0 || reduced.length > 0 || topOffer.length > 0) && (
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                { title: 'Top Rated', items: topRated },
-                { title: 'Reduced',   items: reduced },
-                { title: 'Top Offer', items: topOffer },
-              ].map(({ title, items }) => (
-                <div key={title} className="bg-white rounded-xl shadow-sm border border-gray-200 p-5">
-                  <h3 className="text-lg font-extrabold text-gray-900 uppercase tracking-wide mb-3">{title}</h3>
-                  <div>
-                    {items.length > 0
-                      ? items.map((p) => <ProductListItem key={p.id} product={p} />)
-                      : <p className="text-sm text-gray-400 py-4">No products yet.</p>}
-                  </div>
-                </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {featured.slice(0, 8).map((p) => (
+                <ProductCard key={p.id} product={p} />
               ))}
             </div>
           </div>
         </section>
       )}
 
-      {/* Blog */}
+      {/* ============ PROMO BANNERS (New Arrivals + Special Offers) ============ */}
+      <section className="py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {/* New Arrivals */}
+            <Link
+              href="/products?badge=NEW"
+              className="relative overflow-hidden rounded-2xl group bg-gradient-to-br from-red-600 to-red-700 min-h-[180px] p-8 flex items-center"
+            >
+              <div className="absolute right-0 top-0 opacity-20 pointer-events-none">
+                <Sparkles className="h-40 w-40 text-white transform rotate-12 translate-x-6 -translate-y-4" />
+              </div>
+              <div className="relative text-white">
+                <span className="inline-block bg-white/20 backdrop-blur text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest mb-3">
+                  Just In
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-extrabold mb-2 leading-tight">New Arrivals</h3>
+                <p className="text-white/80 text-sm mb-4 max-w-xs">Fresh picks added every week. Be the first to shop.</p>
+                <span className="inline-flex items-center gap-2 bg-white text-red-600 font-bold px-5 py-2 rounded-lg text-sm group-hover:bg-gray-100 transition-colors">
+                  Shop New <ArrowRight className="h-4 w-4" />
+                </span>
+              </div>
+            </Link>
+
+            {/* Special Offers */}
+            <Link
+              href="/products?badge=SALE"
+              className="relative overflow-hidden rounded-2xl group bg-gradient-to-br from-red-700 via-red-600 to-orange-600 min-h-[180px] p-8 flex items-center"
+            >
+              <div className="absolute right-0 bottom-0 opacity-20 pointer-events-none">
+                <Gift className="h-40 w-40 text-white transform -rotate-12 translate-x-6 translate-y-4" />
+              </div>
+              <div className="relative text-white">
+                <span className="inline-block bg-white/20 backdrop-blur text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest mb-3">
+                  Up to 50% off
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-extrabold mb-2 leading-tight">Special Offers</h3>
+                <p className="text-white/80 text-sm mb-4 max-w-xs">Don't miss out on these exclusive deals and savings.</p>
+                <span className="inline-flex items-center gap-2 bg-white text-red-600 font-bold px-5 py-2 rounded-lg text-sm group-hover:bg-gray-100 transition-colors">
+                  Shop Deals <ArrowRight className="h-4 w-4" />
+                </span>
+              </div>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ============ BESTSELLERS ============ */}
+      {bestsellers.length > 0 && (
+        <section className="bg-white py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeader
+              title="Bestsellers"
+              subtitle="What our customers love most"
+              viewAllHref="/products?badge=BESTSELLER"
+              icon={Flame}
+            />
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {bestsellers.slice(0, 8).map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ============ NEW PRODUCTS RAIL ============ */}
+      {newProducts.length > 0 && (
+        <section className="py-12">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <SectionHeader
+              title="New Products"
+              subtitle="Check out our latest additions"
+              viewAllHref="/products?badge=NEW"
+              icon={Sparkles}
+            />
+            <ProductRail products={newProducts} />
+          </div>
+        </section>
+      )}
+
+      {/* ============ BLOG ============ */}
       <section className="bg-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-extrabold text-gray-900 uppercase tracking-wide mb-6">
-            Read About Our Products
-          </h2>
+          <SectionHeader title="From the Blog" subtitle="Tips, reviews and shopping guides" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {BLOG_POSTS.map((post) => (
               <Link
@@ -381,9 +462,7 @@ export default function HomePage() {
                   <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-red-600 transition-colors mb-2">
                     {post.title}
                   </h3>
-                  <p className="text-sm text-gray-500 line-clamp-3 mb-4 flex-1">
-                    {post.description}
-                  </p>
+                  <p className="text-sm text-gray-500 line-clamp-3 mb-4 flex-1">{post.description}</p>
                   <div className="flex items-center justify-between pt-3 border-t border-gray-100">
                     <span className="text-xs text-gray-500">{post.date}</span>
                     <span className="text-sm font-semibold text-red-600 flex items-center gap-1 group-hover:gap-2 transition-all">
@@ -397,17 +476,42 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* CTA Banner */}
-      <section className="bg-gradient-to-r from-red-600 to-orange-500 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-3">Ready to Start Shopping?</h2>
-          <p className="text-white/80 mb-6 text-lg">Join thousands of satisfied customers today</p>
-          <Link href="/auth/register" className="inline-flex items-center gap-2 bg-white text-red-600 font-bold px-8 py-3 rounded-xl hover:bg-gray-100 transition-colors shadow-lg">
-            Create Free Account <ArrowRight className="h-5 w-5" />
-          </Link>
+      {/* ============ NEWSLETTER ============ */}
+      <section className="bg-gradient-to-br from-gray-900 via-gray-900 to-black text-white py-14">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-red-600 text-white mb-4">
+            <Mail className="h-7 w-7" />
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold mb-2">Subscribe to Our Newsletter</h2>
+          <p className="text-gray-300 text-sm sm:text-base mb-6">
+            Get exclusive deals, new arrivals, and shopping tips straight to your inbox.
+          </p>
+          <form onSubmit={handleNewsletter} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+            <input
+              type="email"
+              required
+              value={newsletterEmail}
+              onChange={(e) => setNewsletterEmail(e.target.value)}
+              placeholder="Enter your email address"
+              className="flex-1 px-4 py-3 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 text-sm"
+            />
+            <button
+              type="submit"
+              className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors whitespace-nowrap"
+            >
+              Subscribe
+            </button>
+          </form>
+          {newsletterSubmitted && (
+            <p className="text-green-400 text-sm font-semibold mt-4">
+              ✓ Thanks for subscribing! Check your inbox for a welcome offer.
+            </p>
+          )}
+          <p className="text-gray-500 text-xs mt-4">
+            By subscribing you agree to our Privacy Policy. Unsubscribe anytime.
+          </p>
         </div>
       </section>
-
     </div>
   );
 }
