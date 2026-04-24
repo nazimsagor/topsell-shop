@@ -24,38 +24,16 @@ function CallbackContent() {
       }
 
       try {
-        // Supabase parses the URL hash/query (detectSessionInUrl) on load.
-        // But with the implicit flow the tokens sit in the URL fragment and
-        // getSession() sometimes returns null on the very first tick — we
-        // fall back to parsing the hash ourselves and calling setSession().
-        const { data, error } = await supabase.auth.getSession();
+        // PKCE flow: exchange the ?code= in the URL for a Supabase session.
+        const { data, error } = await supabase.auth.exchangeCodeForSession(
+          window.location.href
+        );
+
         if (error) throw error;
 
-        // If no session, try to bootstrap it from the URL hash.
-        if (!data?.session) {
-          const hashParams = new URLSearchParams(window.location.hash.substring(1));
-          const accessToken  = hashParams.get('access_token');
-          const refreshToken = hashParams.get('refresh_token');
+        const accessToken = data?.session?.access_token;
+        if (!accessToken) throw new Error('No session returned from Google');
 
-          if (accessToken) {
-            const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
-              access_token:  accessToken,
-              refresh_token: refreshToken,
-            });
-            if (sessionError) throw sessionError;
-            if (sessionData?.session?.access_token) {
-              await loginWithGoogle(sessionData.session.access_token);
-              await supabase.auth.signOut();
-              toast.success('Welcome!');
-              const redirect = searchParams.get('redirect') || '/';
-              router.replace(redirect);
-              return;
-            }
-          }
-          throw new Error('No session returned from Google');
-        }
-
-        const accessToken = data.session.access_token;
         await loginWithGoogle(accessToken);
 
         // Clear the Supabase session — we only used it to get the token.
