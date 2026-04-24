@@ -429,7 +429,7 @@ function CheckoutContent() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-900 line-clamp-1">{name}</p>
-                      <p className="text-xs text-gray-500">Qty: {qty} × ${price.toFixed(2)}</p>
+                      <p className="text-xs text-gray-500">Qty: {qty} × ৳{price.toFixed(2)}</p>
                     </div>
                     <p className="text-sm font-semibold text-gray-900">৳{(price * qty).toFixed(2)}</p>
                   </div>
@@ -522,9 +522,9 @@ function CheckoutContent() {
                   {paymentMethod === 'sslcommerz' ? 'Redirecting to payment...' : 'Placing Order...'}
                 </>
               ) : paymentMethod === 'sslcommerz' ? (
-                <>Place Order &amp; Pay • ${total.toFixed(2)}</>
+                <>Place Order &amp; Pay • ৳{total.toFixed(2)}</>
               ) : (
-                <>Place Order • ${total.toFixed(2)}</>
+                <>Place Order • ৳{total.toFixed(2)}</>
               )}
             </button>
             <p className="text-xs text-center text-gray-500">

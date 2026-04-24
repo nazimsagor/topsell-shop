@@ -123,11 +123,11 @@ export default function ProductCard({ product }) {
         {/* Price */}
         <div className="flex items-baseline gap-2 mt-auto">
           <span className="text-lg font-bold text-red-600">
-            ${parseFloat(product.price).toFixed(2)}
+            ৳{parseFloat(product.price).toFixed(2)}
           </span>
           {product.old_price && (
             <span className="text-xs text-gray-400 line-through">
-              ${parseFloat(product.old_price).toFixed(2)}
+              ৳{parseFloat(product.old_price).toFixed(2)}
             </span>
           )}
           {discount > 0 && (

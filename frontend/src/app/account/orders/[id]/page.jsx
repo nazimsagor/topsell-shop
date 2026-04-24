@@ -316,7 +316,7 @@ export default function OrderDetailPage() {
                   <dt className="text-gray-600">
                     Discount{order.coupon_code ? ` (${order.coupon_code})` : ''}
                   </dt>
-                  <dd className="font-semibold text-green-600">-${discount.toFixed(2)}</dd>
+                  <dd className="font-semibold text-green-600">-৳{discount.toFixed(2)}</dd>
                 </div>
               )}
               <div className="flex justify-between">

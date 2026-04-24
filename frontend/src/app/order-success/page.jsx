@@ -98,10 +98,10 @@ function OrderSuccessContent() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 line-clamp-1">{p.name || 'Product'}</p>
-                        <p className="text-xs text-gray-500">Qty: {qty} × ${price.toFixed(2)}</p>
+                        <p className="text-xs text-gray-500">Qty: {qty} × ৳{price.toFixed(2)}</p>
                       </div>
                       <p className="text-sm font-semibold text-gray-900">
-                        ${(price * qty).toFixed(2)}
+                        ৳{(price * qty).toFixed(2)}
                       </p>
                     </div>
                   );

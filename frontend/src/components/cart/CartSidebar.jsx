@@ -108,7 +108,7 @@ export default function CartSidebar() {
                         {product.name}
                       </p>
                       <p className="text-sm font-bold text-primary-600 mt-1">
-                        ${parseFloat(product.price || 0).toFixed(2)}
+                        ৳{parseFloat(product.price || 0).toFixed(2)}
                       </p>
 
                       {/* Qty controls */}

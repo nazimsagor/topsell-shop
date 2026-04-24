@@ -185,7 +185,7 @@ export default function AdminOrderDetailPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm text-gray-900 truncate">{name}</p>
-                      <p className="text-xs text-gray-500">Qty: {qty} × ${price.toFixed(2)}</p>
+                      <p className="text-xs text-gray-500">Qty: {qty} × ৳{price.toFixed(2)}</p>
                     </div>
                     <p className="font-semibold text-sm">৳{(price * qty).toFixed(2)}</p>
                   </div>
@@ -201,7 +201,7 @@ export default function AdminOrderDetailPage() {
             <h2 className="font-semibold text-gray-900 mb-3">Summary</h2>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span>৳{subtotal.toFixed(2)}</span></div>
-              {discount > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-${discount.toFixed(2)}</span></div>}
+              {discount > 0 && <div className="flex justify-between text-green-600"><span>Discount</span><span>-৳{discount.toFixed(2)}</span></div>}
               <div className="flex justify-between"><span className="text-gray-600">Shipping</span><span>{shippingCost === 0 ? <span className="text-green-600">Free</span> : `৳${shippingCost.toFixed(2)}`}</span></div>
               <div className="flex justify-between"><span className="text-gray-600">Tax</span><span>৳{tax.toFixed(2)}</span></div>
               <div className="flex justify-between font-bold text-base border-t pt-2 mt-2"><span>Total</span><span>৳{total.toFixed(2)}</span></div>

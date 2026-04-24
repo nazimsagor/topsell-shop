@@ -216,11 +216,11 @@ export default function ProductPage() {
           {/* Price */}
           <div className="flex items-end gap-3 mb-5">
             <span className="text-3xl font-bold text-gray-900">
-              ${parseFloat(product.price).toFixed(2)}
+              ৳{parseFloat(product.price).toFixed(2)}
             </span>
             {product.old_price && (
               <span className="text-xl text-gray-400 line-through">
-                ${parseFloat(product.old_price).toFixed(2)}
+                ৳{parseFloat(product.old_price).toFixed(2)}
               </span>
             )}
             {discount > 0 && (
