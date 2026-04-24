@@ -94,8 +94,10 @@ function CheckoutContent() {
   const sub = parseFloat(subtotal) || 0;
   const discount = Math.min(appliedCoupon?.discount || 0, sub);
   const discountedSub = Math.max(0, +(sub - discount).toFixed(2));
-  const shipping = shippingMethod === 'express' ? 8 : discountedSub >= 50 ? 0 : 3;
-  const tax = +(discountedSub * 0.08).toFixed(2);
+  // BD pricing: standard ৳100, express ৳250, free over ৳5,000.
+  const shipping = shippingMethod === 'express' ? 250 : discountedSub >= 5000 ? 0 : 100;
+  // VAT is typically shown inclusive in BD retail — keep at 0 for a clean total.
+  const tax = 0;
   const total = +(discountedSub + shipping + tax).toFixed(2);
 
   const applyCoupon = async () => {
@@ -333,7 +335,7 @@ function CheckoutContent() {
                     <p className="text-xs text-gray-500">3–5 business days</p>
                   </div>
                   <span className="text-sm font-bold text-gray-900">
-                    {sub >= 50 ? <span className="text-green-600">Free</span> : '$3.00'}
+                    {sub >= 5000 ? <span className="text-green-600">Free</span> : '৳100'}
                   </span>
                 </label>
                 <label className={`flex items-center gap-3 p-4 rounded-xl border-2 cursor-pointer transition-colors ${shippingMethod === 'express' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-gray-300'}`}>
@@ -349,7 +351,7 @@ function CheckoutContent() {
                     <p className="text-sm font-semibold text-gray-900">Express Delivery</p>
                     <p className="text-xs text-gray-500">1–2 business days</p>
                   </div>
-                  <span className="text-sm font-bold text-gray-900">$8.00</span>
+                  <span className="text-sm font-bold text-gray-900">৳250</span>
                 </label>
               </div>
             </div>
@@ -429,7 +431,7 @@ function CheckoutContent() {
                       <p className="text-sm font-medium text-gray-900 line-clamp-1">{name}</p>
                       <p className="text-xs text-gray-500">Qty: {qty} × ${price.toFixed(2)}</p>
                     </div>
-                    <p className="text-sm font-semibold text-gray-900">${(price * qty).toFixed(2)}</p>
+                    <p className="text-sm font-semibold text-gray-900">৳{(price * qty).toFixed(2)}</p>
                   </div>
                 );
               })}
@@ -447,9 +449,9 @@ function CheckoutContent() {
                       <p className="text-xs text-green-700">
                         {appliedCoupon.discount_type === 'percent'
                           ? `${Number(appliedCoupon.discount_value)}% off`
-                          : `$${Number(appliedCoupon.discount_value).toFixed(2)} off`}
+                          : `৳${Number(appliedCoupon.discount_value).toFixed(2)} off`}
                         {' • '}
-                        −${discount.toFixed(2)}
+                        −৳{discount.toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -489,21 +491,23 @@ function CheckoutContent() {
             </div>
 
             <div className="border-t border-gray-200 pt-3 space-y-2 text-sm">
-              <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span>${sub.toFixed(2)}</span></div>
+              <div className="flex justify-between"><span className="text-gray-600">Subtotal</span><span>৳{sub.toFixed(2)}</span></div>
               {appliedCoupon && (
                 <div className="flex justify-between text-green-700">
                   <span>Discount ({appliedCoupon.code})</span>
-                  <span>−${discount.toFixed(2)}</span>
+                  <span>−৳{discount.toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span className="text-gray-600">Delivery</span>
-                <span>{shipping === 0 ? <span className="text-green-600">Free</span> : `$${shipping.toFixed(2)}`}</span>
+                <span>{shipping === 0 ? <span className="text-green-600">Free</span> : `৳${shipping.toFixed(2)}`}</span>
               </div>
-              <div className="flex justify-between"><span className="text-gray-600">Tax</span><span>${tax.toFixed(2)}</span></div>
+              {tax > 0 && (
+                <div className="flex justify-between"><span className="text-gray-600">Tax</span><span>৳{tax.toFixed(2)}</span></div>
+              )}
               <div className="flex justify-between font-bold text-base border-t border-gray-200 pt-2 mt-2">
                 <span>Total</span>
-                <span>${total.toFixed(2)}</span>
+                <span>৳{total.toFixed(2)}</span>
               </div>
             </div>
 

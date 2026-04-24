@@ -306,7 +306,7 @@ export default function ProductPage() {
           <div className="space-y-2.5 text-sm text-gray-600 border-t border-gray-100 pt-5">
             <div className="flex items-center gap-2">
               <Truck className="h-4 w-4 text-green-500 flex-shrink-0" />
-              Free shipping on orders over $50
+              Free shipping on orders over ৳5,000
             </div>
             <div className="flex items-center gap-2">
               <Shield className="h-4 w-4 text-blue-500 flex-shrink-0" />

@@ -112,7 +112,7 @@ function OrderSuccessContent() {
             {total > 0 && (
               <div className="flex justify-between text-base font-bold border-t border-gray-100 pt-4">
                 <span>Total Paid</span>
-                <span>${total.toFixed(2)}</span>
+                <span>৳{total.toFixed(2)}</span>
               </div>
             )}
           </div>

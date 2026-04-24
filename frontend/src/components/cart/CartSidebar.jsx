@@ -147,7 +147,7 @@ export default function CartSidebar() {
           <div className="border-t border-gray-200 px-5 py-4 space-y-3 bg-gray-50">
             <div className="flex items-center justify-between text-sm text-gray-600">
               <span>Subtotal</span>
-              <span className="font-bold text-lg text-gray-900">${parseFloat(subtotal).toFixed(2)}</span>
+              <span className="font-bold text-lg text-gray-900">৳{parseFloat(subtotal).toFixed(2)}</span>
             </div>
             <p className="text-xs text-gray-400">Shipping and taxes calculated at checkout</p>
             <div className="flex gap-3">

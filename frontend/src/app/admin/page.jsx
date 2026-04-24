@@ -46,7 +46,7 @@ export default function AdminDashboard() {
 
   const statCards = [
     { label: 'Total Orders', value: stats.stats.orders,                         icon: ShoppingBag, color: 'bg-blue-500' },
-    { label: 'Revenue',      value: `$${stats.stats.revenue.toFixed(2)}`,       icon: DollarSign,  color: 'bg-green-500' },
+    { label: 'Revenue',      value: `৳${stats.stats.revenue.toFixed(2)}`,       icon: DollarSign,  color: 'bg-green-500' },
     { label: 'Customers',    value: stats.stats.customers,                      icon: Users,       color: 'bg-purple-500' },
     { label: 'Products',     value: stats.stats.products,                       icon: Package,     color: 'bg-orange-500' },
   ];

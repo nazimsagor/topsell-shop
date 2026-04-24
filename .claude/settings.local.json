@@ -44,7 +44,11 @@
       "Bash(py --version)",
       "Bash(mkdir -p \"C:/Users/Nazim Uddin/Downloads/topsell.shop/.pdftmp\")",
       "Bash(npm init *)",
-      "Bash(node build.js)"
+      "Bash(node build.js)",
+      "Bash(sed -i 's/\"৳{c.code}\"/\"${c.code}\"/g'       \"app/admin/coupons/page.jsx\")",
+      "Bash(sed -i 's/\"৳{data.code}\"/\"${data.code}\"/g' \"app/checkout/page.jsx\")",
+      "Bash(sed -i 's/\"৳{name}\"/\"${name}\"/g'           \"app/admin/products/page.jsx\")",
+      "Bash(sed -i 's/\"৳{filters.search}\"/\"${filters.search}\"/g' \"app/products/page.jsx\")"
     ]
   }
 }

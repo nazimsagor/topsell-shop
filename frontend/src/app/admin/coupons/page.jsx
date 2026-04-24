@@ -26,7 +26,7 @@ function humanize(s) {
 
 function formatDiscount(c) {
   const v = Number(c.discount_value);
-  return c.discount_type === 'percent' ? `${v}%` : `$${v.toFixed(2)}`;
+  return c.discount_type === 'percent' ? `${v}%` : `৳${v.toFixed(2)}`;
 }
 
 function formatDate(d) {
@@ -157,7 +157,7 @@ export default function AdminCouponsPage() {
                       </span>
                     </td>
                     <td className="px-5 py-3 text-gray-600">
-                      {Number(c.min_order_amount) > 0 ? `$${Number(c.min_order_amount).toFixed(2)}` : '—'}
+                      {Number(c.min_order_amount) > 0 ? `৳${Number(c.min_order_amount).toFixed(2)}` : '—'}
                     </td>
                     <td className="px-5 py-3 text-gray-600">
                       {c.used_count ?? 0}{c.max_uses != null ? ` / ${c.max_uses}` : ''}
@@ -300,12 +300,12 @@ function CouponFormModal({ coupon, onClose, onSaved }) {
                 className={inputCls}
               >
                 <option value="percent">Percentage (%)</option>
-                <option value="fixed">Fixed amount ($)</option>
+                <option value="fixed">Fixed amount (৳)</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Discount Value * {form.discount_type === 'percent' ? '(%)' : '($)'}
+                Discount Value * {form.discount_type === 'percent' ? '(%)' : '(৳)'}
               </label>
               <input
                 type="number"
@@ -321,7 +321,7 @@ function CouponFormModal({ coupon, onClose, onSaved }) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Order Amount ($)</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Minimum Order Amount (৳)</label>
             <input
               type="number"
               min="0"
