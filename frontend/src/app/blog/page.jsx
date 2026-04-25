@@ -3,9 +3,11 @@ import Image from 'next/image';
 import { Calendar, Tag, ArrowRight } from 'lucide-react';
 import { supabaseServer } from '@/lib/supabaseServer';
 
-// Server component — fetched at request time so new posts appear without
-// needing a redeploy. Revalidate every 5 minutes.
-export const revalidate = 300;
+// Server component — render on every request so newly created posts
+// appear immediately. Setting `revalidate = 0` disables ISR caching for
+// this route. (Equivalent to `dynamic = 'force-dynamic'` for our use.)
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 function formatDate(d) {
   if (!d) return '';

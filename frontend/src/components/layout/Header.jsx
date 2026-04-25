@@ -232,6 +232,7 @@ export default function Header() {
               <Link href="/products?featured=true" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">⭐ Featured</Link>
               <Link href="/products?category=electronics" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">💻 Electronics</Link>
               <Link href="/products?category=sports" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">⚽ Sports</Link>
+              <Link href="/blog" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">📝 Blog</Link>
 
               <span className="ml-auto text-white text-xs font-medium flex items-center gap-1">
                 <Phone className="h-3.5 w-3.5" /> {settings.store_phone}

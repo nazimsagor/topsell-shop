@@ -4,7 +4,11 @@ import { notFound } from 'next/navigation';
 import { Calendar, Tag, ChevronLeft } from 'lucide-react';
 import { supabaseServer } from '@/lib/supabaseServer';
 
-export const revalidate = 300;
+// Always render on demand — never serve a cached HTML version of a post,
+// so edits in /admin/blog/edit/[id] reflect on the next request.
+// (No `generateStaticParams` is exported, so this stays purely dynamic.)
+export const revalidate = 0;
+export const dynamic = 'force-dynamic';
 
 function formatDate(d) {
   if (!d) return '';
