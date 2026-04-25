@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import ProductCard from '../components/products/ProductCard';
-import { newsletterApi } from '../lib/api';
+import { newsletterApi, blogApi } from '../lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -24,11 +24,16 @@ const CATEGORY_ICONS = {
   'sports-fitness': '🏃', 'toys-games': '🎮', 'video-surveillance': '📹',
 };
 
-const BLOG_POSTS = [
-  { title: 'Top 10 Kitchen Gadgets You Need in 2026', category: 'Kitchen',     description: 'Discover the must-have kitchen tools that will transform your cooking experience.', image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600', date: 'April 15, 2026', slug: 'top-10-kitchen-gadgets' },
-  { title: 'Best Fitness Equipment for Home Workouts',   category: 'Fitness',     description: 'Build your perfect home gym with these essential fitness tools. Stay fit without leaving your house.',          image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=600', date: 'April 10, 2026', slug: 'best-fitness-equipment' },
-  { title: 'How to Choose the Right Security Camera',    category: 'Electronics', description: 'Protect your home with the right security camera system. Learn what features matter most.',                    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600', date: 'April 5, 2026',  slug: 'choose-security-camera' },
-];
+// NOTE: blog posts are fetched live from Supabase via /api/blog on mount.
+// Because this file is `'use client'`, an `export const revalidate = 60`
+// would be ignored — instead, the client always fetches fresh data when the
+// homepage renders, which achieves the same "no stale posts" goal.
+function formatBlogDate(d) {
+  if (!d) return '';
+  try {
+    return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+  } catch { return ''; }
+}
 
 const FALLBACK_HERO_SLIDES = [
   {
@@ -110,6 +115,7 @@ export default function HomePage() {
   const [hotDeals, setHotDeals]     = useState([]);
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterSubmitted, setNewsletterSubmitted] = useState(false);
+  const [blogPosts, setBlogPosts] = useState([]);
 
   const countdown = useCountdown(24);
 
@@ -136,6 +142,10 @@ export default function HomePage() {
     }).catch(() => {});
     fetch(`${API}/products/featured`).then(r => r.json()).then(d => setFeatured(Array.isArray(d) ? d.slice(0, 8) : [])).catch(() => {});
     fetch(`${API}/products?limit=8&sort=id&order=desc`).then(r => r.json()).then(d => setNewProducts(Array.isArray(d.products) ? d.products : [])).catch(() => {});
+    // Latest 3 blog posts — backend already returns them sorted by published_at DESC.
+    blogApi.list()
+      .then(({ data }) => setBlogPosts(Array.isArray(data?.posts) ? data.posts.slice(0, 3) : []))
+      .catch(() => {});
     fetch(`${API}/products?limit=8&badge=BESTSELLER`).then(r => r.json()).then(d => setBestsellers(Array.isArray(d.products) ? d.products : [])).catch(() => {});
     // Hot deals — try HOT first, fall back to SALE if empty.
     fetch(`${API}/products?limit=8&badge=HOT`).then(r => r.json()).then(async d => {
@@ -467,29 +477,36 @@ export default function HomePage() {
       )}
 
       {/* ============ BLOG ============ */}
+      {blogPosts.length > 0 && (
       <section className="bg-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeader title="From the Blog" subtitle="Tips, reviews and shopping guides" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {BLOG_POSTS.map((post) => (
+            {blogPosts.map((post) => (
               <Link
-                key={post.slug}
+                key={post.slug || post.id}
                 href={`/blog/${post.slug}`}
                 className="group flex flex-col bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
                 <div className="relative h-48 overflow-hidden">
-                  <img src={post.image} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                  <span className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
-                    {post.category}
-                  </span>
+                  {post.image_url ? (
+                    <img src={post.image_url} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-gray-100 text-5xl">📝</div>
+                  )}
+                  {post.category && (
+                    <span className="absolute top-3 left-3 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wide shadow-md">
+                      {post.category}
+                    </span>
+                  )}
                 </div>
                 <div className="p-5 flex flex-col flex-1">
                   <h3 className="text-lg font-bold text-gray-900 line-clamp-2 group-hover:text-red-600 transition-colors mb-2">
                     {post.title}
                   </h3>
-                  <p className="text-sm text-gray-500 line-clamp-3 mb-4 flex-1">{post.description}</p>
+                  <p className="text-sm text-gray-500 line-clamp-3 mb-4 flex-1">{post.excerpt}</p>
                   <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-                    <span className="text-xs text-gray-500">{post.date}</span>
+                    <span className="text-xs text-gray-500">{formatBlogDate(post.published_at)}</span>
                     <span className="text-sm font-semibold text-red-600 flex items-center gap-1 group-hover:gap-2 transition-all">
                       Read More <ArrowRight className="h-4 w-4" />
                     </span>
@@ -500,6 +517,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* ============ NEWSLETTER ============ */}
       <section className="bg-gradient-to-br from-gray-900 via-gray-900 to-black text-white py-14">
