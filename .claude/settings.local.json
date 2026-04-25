@@ -49,7 +49,12 @@
       "Bash(sed -i 's/\"৳{data.code}\"/\"${data.code}\"/g' \"app/checkout/page.jsx\")",
       "Bash(sed -i 's/\"৳{name}\"/\"${name}\"/g'           \"app/admin/products/page.jsx\")",
       "Bash(sed -i 's/\"৳{filters.search}\"/\"${filters.search}\"/g' \"app/products/page.jsx\")",
-      "Bash(xargs sed *)"
+      "Bash(xargs sed *)",
+      "Bash(python generate_summary_pdf.py)",
+      "Bash(python -m pip install reportlab --quiet)",
+      "Bash(where py *)",
+      "Bash(ls \"/c/Python\"*)",
+      "Bash(npx next *)"
     ]
   }
 }

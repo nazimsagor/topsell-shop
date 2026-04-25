@@ -3,6 +3,10 @@ const { Resend } = require('resend');
 const apiKey = process.env.RESEND_API_KEY;
 const resend = apiKey ? new Resend(apiKey) : null;
 
+console.log('[email] RESEND_API_KEY exists:', !!apiKey, '| length:', apiKey?.length || 0);
+console.log('[email] FROM:', process.env.EMAIL_FROM || '(default onboarding@resend.dev)');
+console.log('[email] ADMIN_EMAIL:', process.env.ADMIN_EMAIL || '(default)');
+
 const FROM        = process.env.EMAIL_FROM   || 'TopSell <onboarding@resend.dev>';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL  || 'nazimuddin112818@gmail.com';
 const SITE_URL    = process.env.FRONTEND_URL || 'https://topsell.shop';
@@ -15,7 +19,9 @@ async function send(payload) {
     return null;
   }
   try {
-    const { data, error } = await resend.emails.send({ from: FROM, ...payload });
+    const result = await resend.emails.send({ from: FROM, ...payload });
+    console.log('[email] Resend result:', JSON.stringify(result));
+    const { data, error } = result;
     if (error) {
       console.error('[email] send failed:', error);
       return null;
