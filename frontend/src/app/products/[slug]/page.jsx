@@ -57,6 +57,9 @@ export default function ProductPage() {
   const [related, setRelated]               = useState([]);
   const [recommended, setRecommended]       = useState([]);
 
+  // Tabs (details | reviews)
+  const [activeTab, setActiveTab] = useState('details');
+
   const { addItem, openCart } = useCartStore();
   const { user } = useAuthStore();
 
@@ -357,17 +360,11 @@ export default function ProductPage() {
             )}
           </div>
 
-          {/* Description */}
+          {/* Short description preview */}
           {product.description && (
-            <p className="text-gray-600 leading-relaxed mb-6">{product.description}</p>
-          )}
-
-          {/* Badge */}
-          {product.badge && (
-            <div className="flex items-center gap-1.5 text-sm text-primary-600 font-medium mb-5">
-              <Tag className="h-4 w-4" />
-              {product.badge}
-            </div>
+            <p className="text-gray-600 leading-relaxed mb-6 line-clamp-3">
+              {product.description}
+            </p>
           )}
 
           {/* Quantity selector */}
@@ -429,9 +426,92 @@ export default function ProductPage() {
         </div>
       </div>
 
-      {/* Reviews */}
+      {/* Tabs: Product Details | Customer Reviews */}
       <section id="reviews" className="scroll-mt-24 border-t border-gray-200 pt-10 pb-4">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Tab bar */}
+        <div role="tablist" aria-label="Product information" className="flex gap-2 sm:gap-6 border-b border-gray-200 mb-8 overflow-x-auto">
+          {[
+            { key: 'details', label: 'Product Details' },
+            { key: 'reviews', label: `Customer Reviews (${reviewSummary.count})` },
+          ].map((tab) => {
+            const active = activeTab === tab.key;
+            return (
+              <button
+                key={tab.key}
+                role="tab"
+                aria-selected={active}
+                onClick={() => setActiveTab(tab.key)}
+                className={`relative px-3 sm:px-4 py-3 text-sm sm:text-base font-semibold whitespace-nowrap transition-colors ${
+                  active ? 'text-red-600' : 'text-gray-500 hover:text-gray-800'
+                }`}
+              >
+                {tab.label}
+                <span
+                  className={`pointer-events-none absolute left-0 right-0 -bottom-px h-0.5 rounded-full transition-all ${
+                    active ? 'bg-red-600 scale-x-100' : 'bg-transparent scale-x-0'
+                  }`}
+                />
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Tab panel: Product Details */}
+        {activeTab === 'details' && (
+          <div role="tabpanel" className="bg-white rounded-xl border border-gray-200 p-6 sm:p-8 animate-[fadeIn_0.2s_ease-out]">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">About this product</h2>
+
+            {product.description ? (
+              <p className="text-gray-700 leading-relaxed whitespace-pre-line mb-6">
+                {product.description}
+              </p>
+            ) : (
+              <p className="text-gray-500 italic mb-6">No description provided.</p>
+            )}
+
+            {/* Key features */}
+            <h3 className="text-sm font-bold text-gray-900 uppercase tracking-wide mb-3">Key features</h3>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm text-gray-700">
+              {categoryName && (
+                <li className="flex items-start gap-2">
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                  <span><span className="font-semibold">Category:</span> {categoryName}</span>
+                </li>
+              )}
+              {product.badge && (
+                <li className="flex items-start gap-2">
+                  <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                  <span className="inline-flex items-center gap-1.5">
+                    <Tag className="h-3.5 w-3.5 text-red-600" /> {product.badge}
+                  </span>
+                </li>
+              )}
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                <span>
+                  <span className="font-semibold">Availability:</span>{' '}
+                  {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-red-500 flex-shrink-0" />
+                <span><span className="font-semibold">Price:</span> ৳{parseFloat(product.price).toFixed(0)}</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Truck className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
+                <span>Free shipping on orders over ৳5,000</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <Shield className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
+                <span>Secure checkout &amp; 30-day returns</span>
+              </li>
+            </ul>
+          </div>
+        )}
+
+        {/* Tab panel: Customer Reviews */}
+        {activeTab === 'reviews' && (
+        <div role="tabpanel" className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-[fadeIn_0.2s_ease-out]">
 
           {/* Summary + Write a review */}
           <div className="lg:col-span-1 space-y-6">
@@ -552,6 +632,7 @@ export default function ProductPage() {
             )}
           </div>
         </div>
+        )}
       </section>
 
       {/* Discovery rails */}
