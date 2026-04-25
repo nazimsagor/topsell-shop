@@ -28,27 +28,13 @@ const BLOG_POSTS = [
   { title: 'How to Choose the Right Security Camera',    category: 'Electronics', description: 'Protect your home with the right security camera system. Learn what features matter most.',                    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600', date: 'April 5, 2026',  slug: 'choose-security-camera' },
 ];
 
-const HERO_SLIDES = [
+const FALLBACK_HERO_SLIDES = [
   {
     image: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1400&h=550&fit=crop',
-    link: '/products?category=kitchen',
+    link: '/products',
     title: "Bangladesh's Best Online Shop",
     subtitle: 'Everything you need, delivered to your door',
     cta: 'Shop Now',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1400&h=550&fit=crop',
-    link: '/products?category=fitness',
-    title: 'Home Fitness Essentials',
-    subtitle: 'Premium gear at unbeatable prices',
-    cta: 'Explore Fitness',
-  },
-  {
-    image: 'https://images.unsplash.com/photo-1472289065668-ce650ac443d2?w=1400&h=550&fit=crop',
-    link: '/products?category=toys-games',
-    title: 'Fun for the Whole Family',
-    subtitle: 'Toys & games the kids will love',
-    cta: 'Browse Toys',
   },
 ];
 
@@ -113,6 +99,7 @@ function SectionHeader({ title, subtitle, viewAllHref, icon: Icon, accent = 'tex
 
 export default function HomePage() {
   const [slide, setSlide] = useState(0);
+  const [heroSlides, setHeroSlides] = useState(FALLBACK_HERO_SLIDES);
   const [showAllCats, setShowAllCats] = useState(false);
   const [categories, setCategories] = useState([]);
   const [featured, setFeatured]     = useState([]);
@@ -128,6 +115,23 @@ export default function HomePage() {
     // Valid sort columns on the backend are: id | name | price | stock.
     // id:desc is used as a proxy for "newest" (id is BIGSERIAL).
     fetch(`${API}/categories`).then(r => r.json()).then(d => setCategories(Array.isArray(d) ? d : [])).catch(() => {});
+    fetch(`${API}/banners?active=true`).then(r => r.json()).then(d => {
+      const list = Array.isArray(d) ? d : [];
+      if (!list.length) return;
+      const mapped = list
+        .filter(b => b.image)
+        .map(b => ({
+          image: b.image,
+          link: b.link_url || '/products',
+          title: b.title || '',
+          subtitle: b.subtitle || '',
+          cta: b.cta_label || 'Shop Now',
+        }));
+      if (mapped.length) {
+        setHeroSlides(mapped);
+        setSlide(0);
+      }
+    }).catch(() => {});
     fetch(`${API}/products/featured`).then(r => r.json()).then(d => setFeatured(Array.isArray(d) ? d.slice(0, 8) : [])).catch(() => {});
     fetch(`${API}/products?limit=8&sort=id&order=desc`).then(r => r.json()).then(d => setNewProducts(Array.isArray(d.products) ? d.products : [])).catch(() => {});
     fetch(`${API}/products?limit=8&badge=BESTSELLER`).then(r => r.json()).then(d => setBestsellers(Array.isArray(d.products) ? d.products : [])).catch(() => {});
@@ -141,12 +145,13 @@ export default function HomePage() {
   }, []);
 
   useEffect(() => {
-    const t = setInterval(() => setSlide(s => (s + 1) % HERO_SLIDES.length), 5000);
+    if (heroSlides.length <= 1) return;
+    const t = setInterval(() => setSlide(s => (s + 1) % heroSlides.length), 5000);
     return () => clearInterval(t);
-  }, []);
+  }, [heroSlides.length]);
 
-  const prevSlide = () => setSlide(s => (s - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
-  const nextSlide = () => setSlide(s => (s + 1) % HERO_SLIDES.length);
+  const prevSlide = () => setSlide(s => (s - 1 + heroSlides.length) % heroSlides.length);
+  const nextSlide = () => setSlide(s => (s + 1) % heroSlides.length);
 
   const handleNewsletter = (e) => {
     e.preventDefault();
@@ -163,7 +168,7 @@ export default function HomePage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="relative overflow-hidden rounded-2xl bg-gray-100 shadow-md">
           <div className="relative w-full h-[340px] md:h-[450px] lg:h-[550px]">
-            {HERO_SLIDES.map((s, i) => (
+            {heroSlides.map((s, i) => (
               <div
                 key={i}
                 className={`absolute inset-0 transition-opacity duration-700 ${i === slide ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none'}`}
@@ -195,17 +200,21 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Arrows */}
-          <button onClick={prevSlide} aria-label="Previous slide" className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-900 rounded-full p-2.5 sm:p-3 shadow-xl transition-all hover:scale-110">
-            <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
-          </button>
-          <button onClick={nextSlide} aria-label="Next slide" className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-900 rounded-full p-2.5 sm:p-3 shadow-xl transition-all hover:scale-110">
-            <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
-          </button>
+          {/* Arrows (hidden when only one slide) */}
+          {heroSlides.length > 1 && (
+            <>
+              <button onClick={prevSlide} aria-label="Previous slide" className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-900 rounded-full p-2.5 sm:p-3 shadow-xl transition-all hover:scale-110">
+                <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+              <button onClick={nextSlide} aria-label="Next slide" className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/90 hover:bg-white text-gray-900 rounded-full p-2.5 sm:p-3 shadow-xl transition-all hover:scale-110">
+                <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+            </>
+          )}
 
           {/* Dots */}
           <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-20 flex gap-2">
-            {HERO_SLIDES.map((_, i) => (
+            {heroSlides.length > 1 && heroSlides.map((_, i) => (
               <button key={i} onClick={() => setSlide(i)} aria-label={`Go to slide ${i+1}`} className={`h-2.5 rounded-full transition-all ${i === slide ? 'bg-white w-8' : 'bg-white/60 w-2.5'}`} />
             ))}
           </div>
