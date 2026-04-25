@@ -143,4 +143,5 @@ export const settingsApi = {
 export const newsletterApi = {
   subscribe: (email) => api.post('/newsletter', { email }),
   list:      () => api.get('/newsletter'),
+  delete:    (id)    => api.delete(`/newsletter/${id}`),
 };

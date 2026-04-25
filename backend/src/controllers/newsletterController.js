@@ -23,9 +23,22 @@ exports.subscribe = asyncHandler(async (req, res) => {
     }
     throw error;
   }
-  // Fire-and-forget welcome email — don't fail the request if SMTP hiccups.
-  sendWelcomeEmail(email).catch((e) => console.error('[newsletter] welcome email failed:', e));
+  // Welcome email is intentionally not sent here — Resend free plan can only
+  // deliver to verified addresses. Re-enable once a sending domain is verified.
   res.status(201).json({ subscriber: data, message: 'Subscribed successfully' });
+});
+
+exports.deleteSubscriber = asyncHandler(async (req, res) => {
+  const id = req.params.id;
+  const { data, error } = await supabase
+    .from('newsletters')
+    .delete()
+    .eq('id', id)
+    .select()
+    .maybeSingle();
+  if (error) throw error;
+  if (!data) return res.status(404).json({ error: 'Subscriber not found' });
+  res.json({ message: 'Subscriber deleted' });
 });
 
 exports.list = asyncHandler(async (req, res) => {

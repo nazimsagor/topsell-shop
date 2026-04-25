@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { Download, Search, Mail } from 'lucide-react';
+import { Download, Search, Mail, Trash2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { newsletterApi } from '@/lib/api';
 
@@ -8,6 +8,7 @@ export default function AdminNewslettersPage() {
   const [subs, setSubs]   = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch]   = useState('');
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     newsletterApi.list()
@@ -21,6 +22,20 @@ export default function AdminNewslettersPage() {
     if (!q) return subs;
     return subs.filter((s) => (s.email || '').toLowerCase().includes(q));
   }, [subs, search]);
+
+  const handleDelete = async (id, email) => {
+    if (!window.confirm(`Delete subscriber "${email}"? This cannot be undone.`)) return;
+    setDeletingId(id);
+    try {
+      await newsletterApi.delete(id);
+      setSubs((prev) => prev.filter((s) => s.id !== id));
+      toast.success('Subscriber deleted');
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to delete subscriber');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const exportCsv = () => {
     if (!subs.length) return;
@@ -76,16 +91,16 @@ export default function AdminNewslettersPage() {
           <table className="w-full text-sm">
             <thead className="bg-gray-50">
               <tr>
-                {['#', 'Email', 'Subscribed on'].map((h) => (
-                  <th key={h} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
+                {['#', 'Email', 'Subscribed on', ''].map((h, i) => (
+                  <th key={i} className="text-left px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr><td colSpan={3} className="px-5 py-10 text-center text-gray-400">Loading…</td></tr>
+                <tr><td colSpan={4} className="px-5 py-10 text-center text-gray-400">Loading…</td></tr>
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={3} className="px-5 py-10 text-center text-gray-400">
+                <tr><td colSpan={4} className="px-5 py-10 text-center text-gray-400">
                   {subs.length === 0 ? 'No subscribers yet' : 'No matches'}
                 </td></tr>
               ) : filtered.map((s) => (
@@ -94,6 +109,16 @@ export default function AdminNewslettersPage() {
                   <td className="px-5 py-3 font-medium text-gray-900 break-all">{s.email}</td>
                   <td className="px-5 py-3 text-gray-500">
                     {s.created_at ? new Date(s.created_at).toLocaleString() : '—'}
+                  </td>
+                  <td className="px-5 py-3 text-right">
+                    <button
+                      onClick={() => handleDelete(s.id, s.email)}
+                      disabled={deletingId === s.id}
+                      title="Delete subscriber"
+                      className="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 disabled:opacity-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
                   </td>
                 </tr>
               ))}
