@@ -93,7 +93,10 @@ export default function AdminProductsPage() {
       });
     }
     if (categoryFilter) list = list.filter((p) => String(p.category_id) === String(categoryFilter));
-    if (badgeFilter)    list = list.filter((p) => p.badge === badgeFilter);
+    if (badgeFilter) {
+      const want = badgeFilter.toLowerCase();
+      list = list.filter((p) => (p.badge || '').toLowerCase() === want);
+    }
     if (stockFilter === 'in')   list = list.filter((p) => Number(p.stock) > 0);
     if (stockFilter === 'out')  list = list.filter((p) => Number(p.stock) <= 0);
     if (featuredFilter === 'yes') list = list.filter((p) => !!p.badge);
