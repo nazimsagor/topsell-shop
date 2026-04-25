@@ -1,31 +1,70 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ShoppingCart, Search, User, Menu, X, Heart, ChevronDown, Phone, Headphones } from 'lucide-react';
+import { ShoppingCart, Search, User, Menu, X, Heart, ChevronDown, Phone, Headphones, Tag } from 'lucide-react';
 import useAuthStore from '../../store/useAuthStore';
 import useCartStore from '../../store/useCartStore';
 import CartSidebar from '../cart/CartSidebar';
+import { categoriesApi } from '../../lib/api';
 
-const CATEGORIES = [
-  { name: 'Electronics', slug: 'electronics', icon: '💻' },
-  { name: 'Clothing', slug: 'clothing', icon: '👗' },
-  { name: 'Home & Garden', slug: 'home-garden', icon: '🏡' },
-  { name: 'Sports & Fitness', slug: 'sports', icon: '⚽' },
-  { name: 'Books', slug: 'books', icon: '📚' },
-  { name: 'Beauty', slug: 'beauty', icon: '💄' },
-  { name: 'Automotive', slug: 'automotive', icon: '🚗' },
-  { name: 'Food & Grocery', slug: 'food-grocery', icon: '🛒' },
-  { name: 'Health & Wellness', slug: 'health-wellness', icon: '💊' },
-  { name: 'Toys & Games', slug: 'toys-games', icon: '🧸' },
-];
+// Fallback emoji map by slug (DB categories typically don't store icons).
+const CATEGORY_ICONS = {
+  electronics:       '💻',
+  clothing:          '👗',
+  fashion:           '👗',
+  'home-garden':     '🏡',
+  home:              '🏡',
+  sports:            '⚽',
+  'sports-fitness':  '⚽',
+  books:             '📚',
+  beauty:            '💄',
+  automotive:        '🚗',
+  cars:              '🚗',
+  'food-grocery':    '🛒',
+  grocery:           '🛒',
+  food:              '🍔',
+  'health-wellness': '💊',
+  health:            '💊',
+  'toys-games':      '🧸',
+  toys:              '🧸',
+  baby:              '🍼',
+  kids:              '🎈',
+  jewelry:           '💍',
+  watches:           '⌚',
+  shoes:             '👟',
+  bags:              '👜',
+  furniture:         '🛋️',
+  kitchen:           '🍳',
+  pets:              '🐾',
+  garden:            '🌱',
+  music:             '🎵',
+  gaming:            '🎮',
+  mobile:            '📱',
+  laptops:           '💻',
+};
+
+function iconFor(cat) {
+  if (cat?.icon) return cat.icon;
+  return CATEGORY_ICONS[cat?.slug] || null;
+}
 
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [catOpen, setCatOpen] = useState(false);
   const [search, setSearch] = useState('');
   const [searchCat, setSearchCat] = useState('All');
+  const [categories, setCategories] = useState([]);
   const router = useRouter();
+
+  useEffect(() => {
+    categoriesApi.getAll()
+      .then(({ data }) => {
+        const list = Array.isArray(data) ? data : data.categories || [];
+        setCategories(list);
+      })
+      .catch(() => setCategories([]));
+  }, []);
 
   const { user, logout } = useAuthStore();
   const { openCart, items } = useCartStore();
@@ -34,7 +73,7 @@ export default function Header() {
   const handleSearch = (e) => {
     e.preventDefault();
     if (search.trim()) {
-      const slug = CATEGORIES.find(c => c.name === searchCat)?.slug;
+      const slug = categories.find(c => c.name === searchCat)?.slug;
       const params = new URLSearchParams();
       params.set('search', search.trim());
       if (slug) params.set('category', slug);
@@ -66,7 +105,7 @@ export default function Header() {
                   className="bg-gray-100 hover:bg-gray-200 border-r border-gray-300 px-3 py-3 text-sm text-gray-700 focus:outline-none cursor-pointer"
                 >
                   <option>All</option>
-                  {CATEGORIES.map(c => <option key={c.slug}>{c.name}</option>)}
+                  {categories.map(c => <option key={c.slug || c.id}>{c.name}</option>)}
                 </select>
                 <input
                   type="text"
@@ -161,14 +200,25 @@ export default function Header() {
                   <ChevronDown className="h-3 w-3" />
                 </button>
                 {catOpen && (
-                  <div className="absolute left-0 top-full w-60 bg-white shadow-2xl border border-gray-200 z-50 rounded-b-lg overflow-hidden">
-                    {CATEGORIES.map(cat => (
-                      <Link key={cat.slug} href={`/products?category=${cat.slug}`}
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors border-b border-gray-100 last:border-0">
-                        <span className="text-lg">{cat.icon}</span>
-                        {cat.name}
-                      </Link>
-                    ))}
+                  <div className="absolute left-0 top-full w-64 bg-white shadow-2xl border border-gray-200 z-50 rounded-b-lg overflow-hidden max-h-[70vh] overflow-y-auto">
+                    {categories.length === 0 ? (
+                      <p className="px-4 py-3 text-sm text-gray-400">Loading…</p>
+                    ) : (
+                      categories.map(cat => {
+                        const emoji = iconFor(cat);
+                        return (
+                          <Link key={cat.slug || cat.id} href={`/products?category=${cat.slug}`}
+                            className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors border-b border-gray-100 last:border-0">
+                            {emoji ? (
+                              <span className="text-lg w-5 text-center">{emoji}</span>
+                            ) : (
+                              <Tag className="h-4 w-4 text-red-500 flex-shrink-0" />
+                            )}
+                            <span className="truncate">{cat.name}</span>
+                          </Link>
+                        );
+                      })
+                    )}
                   </div>
                 )}
               </div>
@@ -204,13 +254,17 @@ export default function Header() {
               </button>
             </form>
             <div className="grid grid-cols-2 gap-2">
-              {CATEGORIES.map(cat => (
-                <Link key={cat.slug} href={`/products?category=${cat.slug}`}
-                  className="flex items-center gap-2 text-sm text-gray-200 py-2 hover:text-red-400"
-                  onClick={() => setMenuOpen(false)}>
-                  <span>{cat.icon}</span> {cat.name}
-                </Link>
-              ))}
+              {categories.map(cat => {
+                const emoji = iconFor(cat);
+                return (
+                  <Link key={cat.slug || cat.id} href={`/products?category=${cat.slug}`}
+                    className="flex items-center gap-2 text-sm text-gray-200 py-2 hover:text-red-400"
+                    onClick={() => setMenuOpen(false)}>
+                    {emoji ? <span>{emoji}</span> : <Tag className="h-4 w-4 text-red-400" />}
+                    <span className="truncate">{cat.name}</span>
+                  </Link>
+                );
+              })}
             </div>
             {user ? (
               <>
