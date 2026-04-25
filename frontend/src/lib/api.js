@@ -138,3 +138,9 @@ export const settingsApi = {
   get:    () => api.get('/settings'),
   update: (data) => api.patch('/settings', data),
 };
+
+// Newsletter
+export const newsletterApi = {
+  subscribe: (email) => api.post('/newsletter', { email }),
+  list:      () => api.get('/newsletter'),
+};

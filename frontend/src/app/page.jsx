@@ -6,7 +6,9 @@ import {
   ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
   Flame, Mail, Sparkles, Gift, Star,
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import ProductCard from '../components/products/ProductCard';
+import { newsletterApi } from '../lib/api';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
@@ -153,12 +155,26 @@ export default function HomePage() {
   const prevSlide = () => setSlide(s => (s - 1 + heroSlides.length) % heroSlides.length);
   const nextSlide = () => setSlide(s => (s + 1) % heroSlides.length);
 
-  const handleNewsletter = (e) => {
+  const [newsletterSaving, setNewsletterSaving] = useState(false);
+  const handleNewsletter = async (e) => {
     e.preventDefault();
-    if (!newsletterEmail.trim()) return;
-    setNewsletterSubmitted(true);
-    setNewsletterEmail('');
-    setTimeout(() => setNewsletterSubmitted(false), 4000);
+    const email = newsletterEmail.trim();
+    if (!email) return;
+    setNewsletterSaving(true);
+    try {
+      await newsletterApi.subscribe(email);
+      setNewsletterSubmitted(true);
+      setNewsletterEmail('');
+      toast.success('Successfully subscribed!');
+      setTimeout(() => setNewsletterSubmitted(false), 4000);
+    } catch (err) {
+      const status = err.response?.status;
+      const msg = err.response?.data?.error
+        || (status === 409 ? 'This email is already subscribed' : 'Failed to subscribe');
+      toast.error(msg);
+    } finally {
+      setNewsletterSaving(false);
+    }
   };
 
   return (
@@ -506,9 +522,10 @@ export default function HomePage() {
             />
             <button
               type="submit"
-              className="bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors whitespace-nowrap"
+              disabled={newsletterSaving}
+              className="bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors whitespace-nowrap"
             >
-              Subscribe
+              {newsletterSaving ? 'Subscribing…' : 'Subscribe'}
             </button>
           </form>
           {newsletterSubmitted && (

@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   LayoutDashboard, Package, FolderTree, ShoppingBag, Users, Tag,
-  Image as ImageIcon, Settings, Menu, X,
+  Image as ImageIcon, Settings, Mail, Menu, X,
 } from 'lucide-react';
 import useAuthStore from '@/store/useAuthStore';
 
@@ -16,6 +16,7 @@ const NAV = [
   { href: '/admin/customers',  label: 'Customers',  icon: Users },
   { href: '/admin/coupons',    label: 'Coupons',    icon: Tag },
   { href: '/admin/banners',    label: 'Banners',    icon: ImageIcon },
+  { href: '/admin/newsletters',label: 'Newsletters',icon: Mail },
   { href: '/admin/settings',   label: 'Settings',   icon: Settings },
 ];
 
