@@ -7,6 +7,7 @@ import useAuthStore from '../../store/useAuthStore';
 import useCartStore from '../../store/useCartStore';
 import CartSidebar from '../cart/CartSidebar';
 import { categoriesApi } from '../../lib/api';
+import useSiteSettings from '../../lib/useSiteSettings';
 
 // Fallback emoji map by slug (DB categories typically don't store icons).
 const CATEGORY_ICONS = {
@@ -56,6 +57,7 @@ export default function Header() {
   const [searchCat, setSearchCat] = useState('All');
   const [categories, setCategories] = useState([]);
   const router = useRouter();
+  const settings = useSiteSettings();
 
   useEffect(() => {
     categoriesApi.getAll()
@@ -128,7 +130,7 @@ export default function Header() {
                 <Headphones className="h-7 w-7 text-red-500" />
                 <div className="leading-tight">
                   <p className="text-[11px] text-gray-400">Contact us</p>
-                  <p className="text-sm font-bold">+8801797515010</p>
+                  <p className="text-sm font-bold">{settings.store_phone}</p>
                 </div>
               </div>
 
@@ -232,7 +234,7 @@ export default function Header() {
               <Link href="/products?category=sports" className="text-white text-sm font-semibold px-4 h-11 flex items-center hover:bg-red-700 transition-colors">⚽ Sports</Link>
 
               <span className="ml-auto text-white text-xs font-medium flex items-center gap-1">
-                <Phone className="h-3.5 w-3.5" /> +8801797515010
+                <Phone className="h-3.5 w-3.5" /> {settings.store_phone}
               </span>
             </div>
           </div>

@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Save, Store, Phone, Mail, MapPin, Share2, Truck, Percent } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { settingsApi } from '@/lib/api';
+import { setSiteSettings } from '@/lib/useSiteSettings';
 
 const FIELDS = [
   { key: 'store_name',         label: 'Store name',        icon: Store, type: 'text' },
@@ -44,7 +45,15 @@ export default function AdminSettingsPage() {
         payload[f.key] = f.type === 'number' ? Number(raw) || 0 : String(raw);
       }
       await settingsApi.update(payload);
-      toast.success('Settings saved');
+      // Re-fetch so the local state matches whatever the DB returns
+      // (defaults filled in, types coerced, etc.).
+      const { data } = await settingsApi.get();
+      const fresh = {};
+      for (const k in data) fresh[k] = data[k] ?? '';
+      setValues(fresh);
+      // Broadcast to Header/Footer/etc. on this tab so they refresh instantly.
+      setSiteSettings(data);
+      toast.success('Settings saved!');
     } catch (err) {
       toast.error(err.response?.data?.error || 'Failed to save');
     } finally {

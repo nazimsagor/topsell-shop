@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Link from 'next/link';
 import {
   Phone,
@@ -11,37 +11,42 @@ import {
   Instagram,
   Send,
 } from 'lucide-react';
-
-const CONTACT_METHODS = [
-  {
-    icon: Phone,
-    title: 'Call Us',
-    value: '+880 1797-515010',
-    href: 'tel:+8801797515010',
-    note: 'Sat–Thu, 9:00 AM – 9:00 PM',
-    color: 'bg-red-50 text-red-600',
-  },
-  {
-    icon: Mail,
-    title: 'Email Us',
-    value: 'support@topsell.shop',
-    href: 'mailto:support@topsell.shop',
-    note: 'We reply within 24 hours',
-    color: 'bg-blue-50 text-blue-600',
-  },
-  {
-    icon: MessageCircle,
-    title: 'WhatsApp',
-    value: '+880 1797-515010',
-    href: 'https://wa.me/8801797515010',
-    note: 'Fastest way to reach us',
-    color: 'bg-green-50 text-green-600',
-  },
-];
+import useSiteSettings from '@/lib/useSiteSettings';
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const settings = useSiteSettings();
+
+  const CONTACT_METHODS = useMemo(() => {
+    const phoneDigits = (settings.store_phone || '').replace(/\D/g, '');
+    return [
+      {
+        icon: Phone,
+        title: 'Call Us',
+        value: settings.store_phone,
+        href: `tel:${settings.store_phone}`,
+        note: 'Sat–Thu, 9:00 AM – 9:00 PM',
+        color: 'bg-red-50 text-red-600',
+      },
+      {
+        icon: Mail,
+        title: 'Email Us',
+        value: settings.store_email,
+        href: `mailto:${settings.store_email}`,
+        note: 'We reply within 24 hours',
+        color: 'bg-blue-50 text-blue-600',
+      },
+      {
+        icon: MessageCircle,
+        title: 'WhatsApp',
+        value: settings.store_phone,
+        href: phoneDigits ? `https://wa.me/${phoneDigits}` : '#',
+        note: 'Fastest way to reach us',
+        color: 'bg-green-50 text-green-600',
+      },
+    ];
+  }, [settings.store_phone, settings.store_email]);
 
   const onChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -192,14 +197,12 @@ export default function ContactPage() {
                 <MapPin className="h-5 w-5 text-red-600" />
                 <h3 className="text-lg font-bold text-gray-900">Our Office</h3>
               </div>
-              <address className="not-italic text-sm text-gray-700 leading-relaxed">
-                TopSell Shop Ltd.<br />
-                House 42, Road 11, Block E<br />
-                Banani, Dhaka 1213<br />
-                Bangladesh
+              <address className="not-italic text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                {settings.store_name}{'\n'}
+                {settings.store_address}
               </address>
               <a
-                href="https://www.google.com/maps/search/?api=1&query=Banani+Dhaka+1213+Bangladesh"
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.store_address || 'Bangladesh')}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-sm font-semibold text-red-600 hover:underline mt-3"
