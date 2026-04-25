@@ -67,7 +67,7 @@ export default function OrdersPage() {
               </div>
               <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
                 <span>{new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
-                <span className="font-semibold text-gray-900">৳{parseFloat(order.total).toFixed(2)}</span>
+                <span className="font-semibold text-gray-900">৳{parseFloat(order.total).toFixed(0)}</span>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
                 <Link

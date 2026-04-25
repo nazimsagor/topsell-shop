@@ -110,7 +110,7 @@ export default function AdminProductsPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-5 py-3 font-semibold">৳{parseFloat(product.price).toFixed(2)}</td>
+                  <td className="px-5 py-3 font-semibold">৳{parseFloat(product.price).toFixed(0)}</td>
                   <td className="px-5 py-3">
                     <span className={`badge ${product.stock < 10 ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
                       {product.stock}

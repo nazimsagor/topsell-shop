@@ -75,7 +75,7 @@ export default function WishlistPage() {
                 <Link href={`/products/${item.slug}`} className="text-sm font-semibold text-gray-900 hover:text-primary-600 line-clamp-2">
                   {item.name}
                 </Link>
-                <p className="text-primary-600 font-bold mt-1">৳{parseFloat(item.price).toFixed(2)}</p>
+                <p className="text-primary-600 font-bold mt-1">৳{parseFloat(item.price).toFixed(0)}</p>
                 <div className="flex gap-2 mt-3">
                   <button onClick={() => addToCart(item.product_id)} className="flex-1 p-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg flex items-center justify-center" title="Add to cart">
                     <ShoppingCart className="h-4 w-4" />

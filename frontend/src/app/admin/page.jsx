@@ -46,7 +46,7 @@ export default function AdminDashboard() {
 
   const statCards = [
     { label: 'Total Orders', value: stats.stats.orders,                         icon: ShoppingBag, color: 'bg-blue-500' },
-    { label: 'Revenue',      value: `৳${stats.stats.revenue.toFixed(2)}`,       icon: DollarSign,  color: 'bg-green-500' },
+    { label: 'Revenue',      value: `৳${stats.stats.revenue.toFixed(0)}`,       icon: DollarSign,  color: 'bg-green-500' },
     { label: 'Customers',    value: stats.stats.customers,                      icon: Users,       color: 'bg-purple-500' },
     { label: 'Products',     value: stats.stats.products,                       icon: Package,     color: 'bg-orange-500' },
   ];
@@ -141,7 +141,7 @@ export default function AdminDashboard() {
                       {new Date(order.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-5 py-3 font-semibold">
-                      ৳{parseFloat(order.total).toFixed(2)}
+                      ৳{parseFloat(order.total).toFixed(0)}
                     </td>
                     <td className="px-5 py-3">
                       <span className={`inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full ${STATUS_COLORS[order.status] || 'bg-gray-100 text-gray-600'}`}>

@@ -139,7 +139,7 @@ export default function OrderDetailPage() {
           </div>
           <div className="text-left sm:text-right">
             <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Total</p>
-            <p className="text-2xl font-extrabold text-gray-900">৳{total.toFixed(2)}</p>
+            <p className="text-2xl font-extrabold text-gray-900">৳{total.toFixed(0)}</p>
             <p className="text-xs text-gray-500 mt-0.5 inline-flex items-center gap-1">
               <CreditCard className="h-3.5 w-3.5" /> {paymentName}
             </p>
@@ -269,8 +269,8 @@ export default function OrderDetailPage() {
                         <p className="text-sm text-gray-500 mt-0.5">Qty {it.qty}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="font-bold text-gray-900">৳{(parseFloat(it.price) * it.qty).toFixed(2)}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">৳{parseFloat(it.price).toFixed(2)} each</p>
+                        <p className="font-bold text-gray-900">৳{(parseFloat(it.price) * it.qty).toFixed(0)}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">৳{parseFloat(it.price).toFixed(0)} each</p>
                       </div>
                     </li>
                   );
@@ -309,31 +309,31 @@ export default function OrderDetailPage() {
             <dl className="text-sm space-y-2">
               <div className="flex justify-between">
                 <dt className="text-gray-600">Subtotal</dt>
-                <dd className="font-semibold text-gray-900">৳{subtotal.toFixed(2)}</dd>
+                <dd className="font-semibold text-gray-900">৳{subtotal.toFixed(0)}</dd>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between">
                   <dt className="text-gray-600">
                     Discount{order.coupon_code ? ` (${order.coupon_code})` : ''}
                   </dt>
-                  <dd className="font-semibold text-green-600">-৳{discount.toFixed(2)}</dd>
+                  <dd className="font-semibold text-green-600">-৳{discount.toFixed(0)}</dd>
                 </div>
               )}
               <div className="flex justify-between">
                 <dt className="text-gray-600">Shipping</dt>
                 <dd className="font-semibold text-gray-900">
-                  {shippingFee > 0 ? `৳${shippingFee.toFixed(2)}` : 'Free'}
+                  {shippingFee > 0 ? `৳${shippingFee.toFixed(0)}` : 'Free'}
                 </dd>
               </div>
               {tax > 0 && (
                 <div className="flex justify-between">
                   <dt className="text-gray-600">Tax</dt>
-                  <dd className="font-semibold text-gray-900">৳{tax.toFixed(2)}</dd>
+                  <dd className="font-semibold text-gray-900">৳{tax.toFixed(0)}</dd>
                 </div>
               )}
               <div className="flex justify-between pt-2 border-t border-gray-100 text-base">
                 <dt className="font-bold text-gray-900">Total</dt>
-                <dd className="font-extrabold text-gray-900">৳{total.toFixed(2)}</dd>
+                <dd className="font-extrabold text-gray-900">৳{total.toFixed(0)}</dd>
               </div>
             </dl>
           </div>

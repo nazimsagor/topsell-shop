@@ -98,10 +98,10 @@ function OrderSuccessContent() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-gray-900 line-clamp-1">{p.name || 'Product'}</p>
-                        <p className="text-xs text-gray-500">Qty: {qty} × ৳{price.toFixed(2)}</p>
+                        <p className="text-xs text-gray-500">Qty: {qty} × ৳{price.toFixed(0)}</p>
                       </div>
                       <p className="text-sm font-semibold text-gray-900">
-                        ৳{(price * qty).toFixed(2)}
+                        ৳{(price * qty).toFixed(0)}
                       </p>
                     </div>
                   );
@@ -112,7 +112,7 @@ function OrderSuccessContent() {
             {total > 0 && (
               <div className="flex justify-between text-base font-bold border-t border-gray-100 pt-4">
                 <span>Total Paid</span>
-                <span>৳{total.toFixed(2)}</span>
+                <span>৳{total.toFixed(0)}</span>
               </div>
             )}
           </div>

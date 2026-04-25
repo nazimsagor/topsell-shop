@@ -10,8 +10,9 @@ export default function CartPage() {
   const [updatingId, setUpdatingId] = useState(null);
 
   const sub = parseFloat(subtotal) || 0;
-  const shipping = sub >= 50 ? 0 : 5.99;
-  const tax = sub * 0.08;
+  // BD pricing: free shipping over ৳5,000, otherwise flat ৳100. VAT inclusive.
+  const shipping = sub >= 5000 ? 0 : 100;
+  const tax = 0;
   const total = sub + shipping + tax;
 
   const handleUpdate = async (id, qty) => {
@@ -85,7 +86,7 @@ export default function CartPage() {
                   <Link href={`/products/${slug}`} className="font-semibold text-gray-900 hover:text-red-600 line-clamp-1">
                     {name}
                   </Link>
-                  <p className="text-red-600 font-bold mt-1">৳{price.toFixed(2)}</p>
+                  <p className="text-red-600 font-bold mt-1">৳{price.toFixed(0)}</p>
 
                   <div className="flex items-center justify-between mt-3">
                     <div className="flex items-center gap-2">
@@ -107,7 +108,7 @@ export default function CartPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                      <span className="font-bold text-gray-900">৳{(price * qty).toFixed(2)}</span>
+                      <span className="font-bold text-gray-900">৳{(price * qty).toFixed(0)}</span>
                       <button onClick={() => handleRemove(item.id)} className="text-red-400 hover:text-red-600 transition-colors">
                         <Trash2 className="h-4 w-4" />
                       </button>
@@ -126,24 +127,20 @@ export default function CartPage() {
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
-                <span className="font-medium">৳{sub.toFixed(2)}</span>
+                <span className="font-medium">৳{sub.toFixed(0)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Shipping</span>
-                <span className="font-medium">{shipping === 0 ? <span className="text-green-600">Free</span> : `৳${shipping.toFixed(2)}`}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Tax (8%)</span>
-                <span className="font-medium">৳{tax.toFixed(2)}</span>
+                <span className="font-medium">{shipping === 0 ? <span className="text-green-600">Free</span> : `৳${shipping.toFixed(0)}`}</span>
               </div>
               {shipping > 0 && (
                 <p className="text-xs text-red-600 bg-red-50 rounded-lg p-2">
-                  Add ${(50 - sub).toFixed(2)} more for free shipping!
+                  Add ৳{(5000 - sub).toFixed(0)} more for free shipping!
                 </p>
               )}
               <div className="border-t border-gray-200 pt-3 flex justify-between font-bold text-base">
                 <span>Total</span>
-                <span>৳{total.toFixed(2)}</span>
+                <span>৳{total.toFixed(0)}</span>
               </div>
             </div>
 

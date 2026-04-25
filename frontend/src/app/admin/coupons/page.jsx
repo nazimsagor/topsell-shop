@@ -26,7 +26,7 @@ function humanize(s) {
 
 function formatDiscount(c) {
   const v = Number(c.discount_value);
-  return c.discount_type === 'percent' ? `${v}%` : `৳${v.toFixed(2)}`;
+  return c.discount_type === 'percent' ? `${v}%` : `৳${v.toFixed(0)}`;
 }
 
 function formatDate(d) {
@@ -152,12 +152,12 @@ export default function AdminCouponsPage() {
                       <span className="inline-flex items-center gap-1 font-semibold text-gray-800">
                         {c.discount_type === 'percent'
                           ? <><Percent className="h-3.5 w-3.5" /> {Number(c.discount_value)}%</>
-                          : <><DollarSign className="h-3.5 w-3.5" /> {Number(c.discount_value).toFixed(2)}</>
+                          : <><DollarSign className="h-3.5 w-3.5" /> {Number(c.discount_value).toFixed(0)}</>
                         }
                       </span>
                     </td>
                     <td className="px-5 py-3 text-gray-600">
-                      {Number(c.min_order_amount) > 0 ? `৳${Number(c.min_order_amount).toFixed(2)}` : '—'}
+                      {Number(c.min_order_amount) > 0 ? `৳${Number(c.min_order_amount).toFixed(0)}` : '—'}
                     </td>
                     <td className="px-5 py-3 text-gray-600">
                       {c.used_count ?? 0}{c.max_uses != null ? ` / ${c.max_uses}` : ''}

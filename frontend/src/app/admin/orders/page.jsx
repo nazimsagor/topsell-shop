@@ -197,7 +197,7 @@ export default function AdminOrdersPage() {
                       {new Date(order.created_at).toLocaleDateString()}
                     </td>
                     <td className="px-5 py-3 text-gray-600">{itemCount}</td>
-                    <td className="px-5 py-3 font-semibold">৳{parseFloat(order.total).toFixed(2)}</td>
+                    <td className="px-5 py-3 font-semibold">৳{parseFloat(order.total).toFixed(0)}</td>
                     <td className="px-5 py-3">
                       <span className={`inline-block text-xs font-semibold px-2.5 py-0.5 rounded-full ${PAY_STATUS_COLORS[payStatus]}`}>
                         {humanize(payStatus)}
