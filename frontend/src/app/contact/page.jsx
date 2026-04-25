@@ -11,11 +11,14 @@ import {
   Instagram,
   Send,
 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 import useSiteSettings from '@/lib/useSiteSettings';
+import api from '@/lib/api';
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
   const settings = useSiteSettings();
 
   const CONTACT_METHODS = useMemo(() => {
@@ -51,12 +54,21 @@ export default function ContactPage() {
   const onChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    // UI-only: no backend. Users can also reach us by email/phone/WhatsApp.
-    setSubmitted(true);
-    setForm({ name: '', email: '', subject: '', message: '' });
-    setTimeout(() => setSubmitted(false), 5000);
+    if (sending) return;
+    setSending(true);
+    try {
+      await api.post('/contact', form);
+      setSubmitted(true);
+      setForm({ name: '', email: '', subject: '', message: '' });
+      toast.success('Message sent! We’ll get back to you soon.');
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Failed to send message');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -176,9 +188,10 @@ export default function ContactPage() {
 
                 <button
                   type="submit"
-                  className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors"
+                  disabled={sending}
+                  className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 disabled:opacity-60 text-white font-bold px-6 py-3 rounded-xl text-sm transition-colors"
                 >
-                  <Send className="h-4 w-4" /> Send Message
+                  <Send className="h-4 w-4" /> {sending ? 'Sending…' : 'Send Message'}
                 </button>
 
                 {submitted && (

@@ -16,6 +16,7 @@ const adminCouponRoutes = require('./src/routes/adminCoupons');
 const bannerRoutes = require('./src/routes/banners');
 const settingsRoutes = require('./src/routes/settings');
 const newsletterRoutes = require('./src/routes/newsletter');
+const contactRoutes = require('./src/routes/contact');
 
 const { errorHandler } = require('./src/middleware/errorHandler');
 
@@ -55,6 +56,7 @@ app.use('/api/admin/coupons', adminCouponRoutes);
 app.use('/api/banners', bannerRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/newsletter', newsletterRoutes);
+app.use('/api/contact', contactRoutes);
 
 app.use(errorHandler);
 

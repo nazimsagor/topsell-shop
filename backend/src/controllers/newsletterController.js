@@ -1,5 +1,6 @@
 const supabase = require('../config/db');
 const { asyncHandler } = require('../middleware/errorHandler');
+const { sendWelcomeEmail } = require('../utils/email');
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -22,6 +23,8 @@ exports.subscribe = asyncHandler(async (req, res) => {
     }
     throw error;
   }
+  // Fire-and-forget welcome email — don't fail the request if SMTP hiccups.
+  sendWelcomeEmail(email).catch((e) => console.error('[newsletter] welcome email failed:', e));
   res.status(201).json({ subscriber: data, message: 'Subscribed successfully' });
 });
 
