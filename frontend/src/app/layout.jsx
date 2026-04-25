@@ -5,9 +5,18 @@ import Footer from '../components/layout/Footer';
 import Providers from '../components/Providers';
 
 export const metadata = {
-  title: { default: 'TopSell Shop', template: '%s | TopSell Shop' },
-  description: 'Your one-stop shop for the best deals online',
-  keywords: ['ecommerce', 'shopping', 'deals', 'products'],
+  title: {
+    default: "TopSell - Bangladesh's Best Online Shop",
+    template: '%s | TopSell',
+  },
+  description:
+    "TopSell is Bangladesh's trusted online shopping destination — electronics, fashion, home & more, with fast delivery and Cash on Delivery.",
+  keywords: ['TopSell', 'Bangladesh', 'online shopping', 'ecommerce', 'BD', 'electronics', 'fashion'],
+  applicationName: 'TopSell',
+  icons: {
+    icon: '/icon.svg',
+    apple: '/apple-icon.svg',
+  },
 };
 
 export default function RootLayout({ children }) {
