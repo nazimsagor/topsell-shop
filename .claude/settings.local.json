@@ -54,7 +54,8 @@
       "Bash(python -m pip install reportlab --quiet)",
       "Bash(where py *)",
       "Bash(ls \"/c/Python\"*)",
-      "Bash(npx next *)"
+      "Bash(npx next *)",
+      "Bash(node apply_blog_migration.js)"
     ]
   }
 }
