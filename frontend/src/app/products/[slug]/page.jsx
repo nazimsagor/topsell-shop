@@ -3,11 +3,15 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { ShoppingCart, Heart, Truck, Shield, ChevronLeft, Plus, Minus, Tag, Star } from 'lucide-react';
+import { ShoppingCart, Heart, Truck, Shield, ChevronLeft, Plus, Minus, Tag, Star, Clock, Sparkles, Layers } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import useCartStore from '../../../store/useCartStore';
 import useAuthStore from '../../../store/useAuthStore';
 import { productsApi, usersApi } from '../../../lib/api';
+import ProductRail from '../../../components/products/ProductRail';
+
+const RECENTLY_VIEWED_KEY = 'topsell:recently-viewed';
+const RECENTLY_VIEWED_MAX = 8;
 
 // --- Reusable star row ---------------------------------------------------
 function Stars({ value = 0, size = 'h-4 w-4' }) {
@@ -47,6 +51,12 @@ export default function ProductPage() {
   const [reviewComment, setReviewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
 
+  // Discovery rails
+  const [recentlyViewed, setRecentlyViewed] = useState([]);
+  const [alsoLike, setAlsoLike]             = useState([]);
+  const [related, setRelated]               = useState([]);
+  const [recommended, setRecommended]       = useState([]);
+
   const { addItem, openCart } = useCartStore();
   const { user } = useAuthStore();
 
@@ -65,6 +75,109 @@ export default function ProductPage() {
         setReviewSummary(data.summary || { average: 0, count: 0 });
       })
       .catch(() => {});
+  }, [product?.id]);
+
+  // --- Recently viewed (localStorage) ----------------------------------
+  useEffect(() => {
+    if (!product?.id || !product?.slug || typeof window === 'undefined') return;
+    let stored = [];
+    try {
+      stored = JSON.parse(localStorage.getItem(RECENTLY_VIEWED_KEY) || '[]');
+      if (!Array.isArray(stored)) stored = [];
+    } catch { stored = []; }
+
+    // Build the list of slugs to fetch — exclude current product, take last N.
+    const others = stored.filter((s) => s && s !== product.slug).slice(0, RECENTLY_VIEWED_MAX);
+
+    if (others.length) {
+      Promise.all(
+        others.map((s) => productsApi.getOne(s).then((r) => r.data).catch(() => null))
+      ).then((items) => setRecentlyViewed(items.filter(Boolean)));
+    } else {
+      setRecentlyViewed([]);
+    }
+
+    // Persist current slug at the front, dedup, cap length.
+    const next = [product.slug, ...stored.filter((s) => s !== product.slug)].slice(0, RECENTLY_VIEWED_MAX + 1);
+    try { localStorage.setItem(RECENTLY_VIEWED_KEY, JSON.stringify(next)); } catch {}
+  }, [product?.id, product?.slug]);
+
+  // --- You may also like (same category) -------------------------------
+  useEffect(() => {
+    if (!product?.id) return;
+    const categorySlug = product.categories?.slug ?? product.category_slug;
+    if (!categorySlug) { setAlsoLike([]); return; }
+    productsApi.getAll({ category: categorySlug, limit: 12 })
+      .then(({ data }) => {
+        const list = Array.isArray(data) ? data : data.products || [];
+        setAlsoLike(list.filter((p) => p.id !== product.id).slice(0, 8));
+      })
+      .catch(() => setAlsoLike([]));
+  }, [product?.id]);
+
+  // --- Related (same badge OR similar price range) ---------------------
+  useEffect(() => {
+    if (!product?.id) return;
+
+    const collect = async () => {
+      const out = [];
+      const seen = new Set([product.id]);
+
+      // Try same badge first.
+      if (product.badge) {
+        try {
+          const { data } = await productsApi.getAll({ badge: product.badge, limit: 12 });
+          const list = Array.isArray(data) ? data : data.products || [];
+          for (const p of list) if (!seen.has(p.id)) { out.push(p); seen.add(p.id); }
+        } catch {}
+      }
+
+      // Then top up with similar price range (±30%).
+      if (out.length < 8) {
+        const price = parseFloat(product.price) || 0;
+        const min = Math.max(0, price * 0.7);
+        const max = price * 1.3;
+        try {
+          const { data } = await productsApi.getAll({ minPrice: Math.floor(min), maxPrice: Math.ceil(max), limit: 16 });
+          const list = Array.isArray(data) ? data : data.products || [];
+          for (const p of list) {
+            if (out.length >= 8) break;
+            if (!seen.has(p.id)) { out.push(p); seen.add(p.id); }
+          }
+        } catch {}
+      }
+
+      setRelated(out.slice(0, 8));
+    };
+    collect();
+  }, [product?.id]);
+
+  // --- Recommended (featured, with random top-up) ----------------------
+  useEffect(() => {
+    if (!product?.id) return;
+    const fetchRec = async () => {
+      const seen = new Set([product.id]);
+      const out = [];
+      try {
+        const { data } = await productsApi.getAll({ badge: 'FEATURED', limit: 12 });
+        const list = Array.isArray(data) ? data : data.products || [];
+        for (const p of list) if (!seen.has(p.id)) { out.push(p); seen.add(p.id); }
+      } catch {}
+      if (out.length < 8) {
+        try {
+          const { data } = await productsApi.getAll({ limit: 16 });
+          const list = Array.isArray(data) ? data : data.products || [];
+          // Shuffle for a random mix.
+          const shuffled = [...list].sort(() => Math.random() - 0.5);
+          for (const p of shuffled) {
+            if (out.length >= 8) break;
+            if (!seen.has(p.id)) { out.push(p); seen.add(p.id); }
+          }
+        } catch {}
+      }
+      setRecommended(out.slice(0, 8));
+    };
+    fetchRec();
   }, [product?.id]);
 
   const submitReview = async (e) => {
@@ -440,6 +553,12 @@ export default function ProductPage() {
           </div>
         </div>
       </section>
+
+      {/* Discovery rails */}
+      <ProductRail title="Last Viewed Products" icon={Clock} products={recentlyViewed} />
+      <ProductRail title="You May Also Like" icon={Layers} products={alsoLike} />
+      <ProductRail title="Related Products" icon={Tag} products={related} />
+      <ProductRail title="Recommended For You" icon={Sparkles} products={recommended} />
     </div>
   );
 }
