@@ -17,6 +17,7 @@ const bannerRoutes = require('./src/routes/banners');
 const settingsRoutes = require('./src/routes/settings');
 const newsletterRoutes = require('./src/routes/newsletter');
 const contactRoutes = require('./src/routes/contact');
+const blogRoutes = require('./src/routes/blog');
 
 const { errorHandler } = require('./src/middleware/errorHandler');
 
@@ -57,6 +58,7 @@ app.use('/api/banners', bannerRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/blog', blogRoutes);
 
 app.use(errorHandler);
 

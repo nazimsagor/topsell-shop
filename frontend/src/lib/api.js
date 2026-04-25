@@ -139,6 +139,15 @@ export const settingsApi = {
   update: (data) => api.patch('/settings', data),
 };
 
+// Blog
+export const blogApi = {
+  list:    () => api.get('/blog'),
+  getOne:  (id) => api.get(`/blog/${id}`),
+  create:  (data) => api.post('/blog', data),
+  update:  (id, data) => api.patch(`/blog/${id}`, data),
+  delete:  (id) => api.delete(`/blog/${id}`),
+};
+
 // Newsletter
 export const newsletterApi = {
   subscribe: (email) => api.post('/newsletter', { email }),
