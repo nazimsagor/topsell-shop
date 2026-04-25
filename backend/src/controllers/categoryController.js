@@ -47,9 +47,10 @@ exports.createCategory = asyncHandler(async (req, res) => {
 
 exports.updateCategory = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { name, image, parent_id } = req.body;
+  const { name, slug, image, parent_id } = req.body;
   const updates = {};
   if (name      !== undefined) updates.name      = name;
+  if (slug      !== undefined) updates.slug      = slug;
   if (image     !== undefined) updates.image     = image;
   if (parent_id !== undefined) updates.parent_id = parent_id;
 
@@ -59,4 +60,20 @@ exports.updateCategory = asyncHandler(async (req, res) => {
   const category = sb(await supabase
     .from('categories').update(updates).eq('id', id).select().single());
   res.json(category);
+});
+
+exports.deleteCategory = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  // Block deletion when products still reference this category.
+  const { count } = await supabase
+    .from('products').select('*', { count: 'exact', head: true }).eq('category_id', id);
+  if (count > 0) {
+    return res.status(409).json({
+      error: `Cannot delete: ${count} product(s) still use this category. Reassign them first.`,
+    });
+  }
+
+  sb(await supabase.from('categories').delete().eq('id', id));
+  res.json({ deleted: true });
 });

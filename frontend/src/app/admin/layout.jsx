@@ -1,2 +1,7 @@
+import AdminShell from '@/components/admin/AdminShell';
+
 export const metadata = { title: 'Admin Dashboard' };
-export default function Layout({ children }) { return children; }
+
+export default function AdminLayout({ children }) {
+  return <AdminShell>{children}</AdminShell>;
+}

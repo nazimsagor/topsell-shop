@@ -59,6 +59,9 @@ export const productsApi = {
 export const categoriesApi = {
   getAll: () => api.get('/categories'),
   getOne: (slug) => api.get(`/categories/${slug}`),
+  create: (data) => api.post('/categories', data),
+  update: (id, data) => api.patch(`/categories/${id}`, data),
+  delete: (id) => api.delete(`/categories/${id}`),
 };
 
 // Cart
@@ -112,10 +115,26 @@ export const uploadsApi = {
 // Users
 export const usersApi = {
   getAll: (params) => api.get('/users', { params }),
+  getOne: (id) => api.get(`/users/${id}`),
+  updateRole: (id, role) => api.patch(`/users/${id}/role`, { role }),
   getAddresses: () => api.get('/users/addresses'),
   addAddress: (data) => api.post('/users/addresses', data),
   deleteAddress: (id) => api.delete(`/users/addresses/${id}`),
   getWishlist: () => api.get('/users/wishlist'),
   toggleWishlist: (product_id) => api.post('/users/wishlist', { product_id }),
   getDashboard: () => api.get('/users/admin/dashboard'),
+};
+
+// Banners
+export const bannersApi = {
+  getAll: (params) => api.get('/banners', { params }),
+  create: (data) => api.post('/banners', data),
+  update: (id, data) => api.patch(`/banners/${id}`, data),
+  delete: (id) => api.delete(`/banners/${id}`),
+};
+
+// Site settings
+export const settingsApi = {
+  get:    () => api.get('/settings'),
+  update: (data) => api.patch('/settings', data),
 };

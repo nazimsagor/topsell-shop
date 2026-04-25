@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Package, ShoppingBag, Users, DollarSign, TrendingUp, Plus, Tag } from 'lucide-react';
+import { Package, ShoppingBag, Users, DollarSign, TrendingUp, Plus, Tag, Layers, Image as ImageIcon, Settings } from 'lucide-react';
 import useAuthStore from '../../store/useAuthStore';
 import { usersApi } from '../../lib/api';
 
@@ -87,10 +87,13 @@ export default function AdminDashboard() {
       {/* Quick navigation */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         {[
-          { href: '/admin/products', label: 'Manage Products', icon: Package },
-          { href: '/admin/orders',   label: 'Manage Orders',   icon: ShoppingBag },
-          { href: '/admin/customers',label: 'View Customers',  icon: Users },
-          { href: '/admin/coupons',  label: 'Manage Coupons',  icon: Tag },
+          { href: '/admin/products',   label: 'Products',   icon: Package },
+          { href: '/admin/categories', label: 'Categories', icon: Layers },
+          { href: '/admin/orders',     label: 'Orders',     icon: ShoppingBag },
+          { href: '/admin/customers',  label: 'Customers',  icon: Users },
+          { href: '/admin/coupons',    label: 'Coupons',    icon: Tag },
+          { href: '/admin/banners',    label: 'Banners',    icon: ImageIcon },
+          { href: '/admin/settings',   label: 'Settings',   icon: Settings },
         ].map(({ href, label, icon: Icon }) => (
           <Link
             key={href}

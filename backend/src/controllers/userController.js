@@ -48,6 +48,43 @@ exports.toggleWishlist = asyncHandler(async (req, res) => {
   res.json({ wishlisted: true });
 });
 
+exports.getUserDetail = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const user = sb(await supabase
+    .from('users')
+    .select('id, name, email, role, created_at')
+    .eq('id', id).maybeSingle());
+  if (!user) return res.status(404).json({ error: 'User not found' });
+
+  const { data: orders } = await supabase
+    .from('orders')
+    .select('id, order_number, total, status, created_at')
+    .eq('user_id', id)
+    .order('created_at', { ascending: false })
+    .limit(50);
+
+  const totalSpent = (orders || [])
+    .filter((o) => o.status !== 'cancelled')
+    .reduce((s, o) => s + parseFloat(o.total || 0), 0);
+
+  res.json({ user, orders: orders || [], totalSpent });
+});
+
+exports.updateUserRole = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { role } = req.body;
+  if (!['admin', 'customer'].includes(role)) {
+    return res.status(400).json({ error: 'role must be admin or customer' });
+  }
+  if (req.user && String(req.user.id) === String(id) && role !== 'admin') {
+    return res.status(400).json({ error: 'You cannot demote yourself' });
+  }
+  const user = sb(await supabase
+    .from('users').update({ role }).eq('id', id)
+    .select('id, name, email, role').single());
+  res.json(user);
+});
+
 exports.getDashboard = asyncHandler(async (req, res) => {
   const [ordersRes, allOrdersRes, customersRes, productsRes, recentRes] = await Promise.all([
     supabase.from('orders').select('*', { count: 'exact', head: true }).neq('status', 'cancelled'),
